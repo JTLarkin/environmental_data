@@ -1,0 +1,142 @@
+---
+title: "Using Models 2"
+author: 'JT Larkin (Partners: None)'
+date: "11/20/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE}
+require(here)
+require(palmerpenguins)
+
+t.test(subset(penguins, species == "Gentoo")$flipper_length_mm)
+
+t.test(
+x = subset(penguins, species == "Gentoo")$flipper_length_mm,
+mu = 218
+)
+
+t.test(
+x = subset(penguins, species == "Gentoo")$flipper_length_mm,
+mu = 218,
+alternative = "less"
+)
+```
+```{r include=FALSE}
+#Two-sample t.test
+t.test(flipper_length_mm ~ species,
+       data = subset(penguins, species != "Chinstrap"))
+
+#1-way ANOVA
+##Graphical
+par(mfrow = c(1, 2))
+hist(penguins$body_mass_g, breaks = 80, main = "histogram of body mass",
+xlab = "body mass (g)")
+
+plot(density(penguins$body_mass_g, na.rm = TRUE), 
+     main = "density plot of body mass")
+
+require(palmerpenguins)
+boxplot(body_mass_g ~ species, data = penguins)
+
+##Numerical
+dat_chinstrap = subset(penguins, species == "Chinstrap")
+mean(dat_chinstrap$body_mass_g, na.rm = TRUE)
+
+shapiro.test(dat_chinstrap$body_mass_g)
+
+aggregate(body_mass_g ~ species, data = penguins, FUN = mean)
+
+##Fit Linear Model
+fit_species = lm(body_mass_g ~ species, data = penguins)
+summary(fit_species)
+
+```
+
+
+```{r include=FALSE}
+#Conduct the ANOVA
+anova(fit_species)
+
+#One-Way Anova Complete Walkthrough
+fit_species = lm(body_mass_g ~ species, data = penguins)
+summary(fit_species)
+
+```
+
+```{r include=FALSE}
+#Two-Way Additive ANOVA
+
+boxplot(body_mass_g ~ species, data = penguins)
+
+fit_additive = lm(body_mass_g ~ sex + species, data = penguins)
+fit_additive
+
+fit_interactive = lm(body_mass_g ~ sex * species, data = penguins)
+fit_interactive
+summary(fit_interactive)
+```
+
+```{r include=FALSE}
+#Simple Linear Regression: Penguin Bills and Body Mass
+
+require(palmerpenguins)
+
+lm(bill_length_mm ~ body_mass_g, data = penguins)
+```
+
+################################################################################
+Assignment
+
+
+1. 
+```{r}
+boxplot(body_mass_g ~ sex * species, data = penguins,
+    main = "Boxplot Of Penguin Body Mass Conditioned \nOn Both Sex And Species",
+        xlab = "",
+        ylab = "Body Mass (g)",
+        las = 2,
+        names = c("Female \nAdelie", "Male \nAdelie", "Female \nChinstrap",
+                  "Male \nChinstrap", "Female \nGentoo", "Male \nGentoo"))
+```
+
+
+2. No. I came to this conclusion because the error bars for males and females overlap for all 3 species. If the error bars did not overlap I would say that there was a significant difference in mass.
+
+
+3. Yes. When only species in the model the boxplot suggests that there may be an issue meeting the homogeneity assumption (some boxes widths are larger, thus more variance in some species means compared to others). Adding sex to the model makes the variances more uniform (in comparison to species alone). Thus, adding sex will help us meet the homogeneity assumption.
+
+4. 
+
+```{r}
+fit_both = lm(body_mass_g ~ sex * species, data = penguins)
+fit_both
+summary(fit_both)
+```
+5. "sexfemale" is the base case for the two-way model.
+
+
+6. "sexfemale" and "specieschinstrap"
+
+7.  3527.21 grams
+```{r}
+3368.84 + 158.37
+```
+
+
+8. 3733.088 grams
+```{r}
+penguins = penguins
+fem_chin = subset(penguins, species == "Chinstrap")$body_mass_g
+fem_chin
+mean(fem_chin)
+```
+
+

@@ -1,0 +1,58 @@
+---
+title: "R Markdown Documents - Part 1"
+author: "JT Larkin"
+date: "9/8/2021"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+subtitle: Analysis of Environmental Data
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+**Jeffery Larkin**
+
+*Department of Environmental Conservation*
+
+![](C:\JT_Larkin\Images\UCard.jpg)
+
+
+
+
+My masters thesis research is focused on understanding the distribution of Eastern Whip-poor-will and what environmental variables effect their distribution. We are using a new technology call Autonomous Recording Units, also know as Audiomoths, to collect night time recordings from over 1800 sites across the eastern US. 
+
+
+
+
+![](C:\Users\larki\Desktop\Whip-poor-will\Images\DSC_4919.JPG)
+Find more information on the eastern whip-poor-will here: <https://www.allaboutbirds.org/guide/Eastern_Whip-poor-will/id> 
+
+
+![](C:\Users\larki\Desktop\ARU_img.jpg)
+
+Find more inofrmation about Audiomoths here: <https://www.openacousticdevices.info/audiomoth> 
+
+
+
+
+
+# Concepts List
+1. Different analyses to run on my data 
+
+2. How to make clean and easy to read figures  
+
+3. How to best organize my data for use in R  
+
+
+# Course List
+  * Silviculture  
+
+  * Remote Sensing 
+
+  * Dendrology  
+
+  * Landscape Genetics  

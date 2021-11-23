@@ -1,0 +1,340 @@
+---
+title: 'Lab 5: Uncertainty, Samples, and Populations'
+author: "JT Larkin (Partners: Ethan Rutledge, Sonja Glasser)"
+date: "10/6/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, include = FALSE}
+#CREATE RICKER FUNCTION
+
+ricker_fun = function(x, a, b) 
+{
+  return(a * x * exp(-b * x))
+}
+
+
+
+curve(
+  ricker_fun(x, 1, 1), 
+  from = 0, to = 5, add = FALSE, 
+  main = "Ricker function: a = 1, b = 1",
+  ylab = "f(x)", xlab = "x")
+
+
+#CREATING OUR OWN EXPONENTIAL FUNCTION
+
+exp_fun = function(x, a, b)
+{
+  return(a*exp(-b*x))
+}
+
+
+#Testing the exp function
+curve(
+  exp_fun(x, 2.2, 1/15), add = FALSE, from = 0, to = 50,
+  ann = FALSE, axes = TRUE, ylab = "f(x)"); box()
+
+
+
+#SIMULATED DATA ON A LINE
+
+# Seed the RNG so we can reproduce our results
+set.seed(1234567)
+
+# Specify the x-range and number of points:
+n_pts = 50
+x_min = 2
+x_max = 10
+
+# Generate the x-values
+x_sim = runif(n_pts, min = x_min, max = x_max)
+
+#Choose an intercept and slope for our deterministic model and generate the 
+#‘predicted’ y values:
+
+param_intercept = 2.3
+param_slope = 0.67
+y_pred = param_intercept + x_sim * param_slope
+plot(x_sim, y_pred, main = "Simulated Data\nNo Errors", xlab = "", ylab = "")
+
+
+#Add some normally-distributed noise to generate our ‘observed’ y-values
+
+error_mean = 0
+error_sd = 0.25
+
+y_observed = 
+  y_pred + 
+  rnorm(
+    n = n_pts, 
+    mean = error_mean, 
+    sd = error_sd)
+plot(x_sim, y_observed, 
+     main = "Normally Distributed Errors\n Constant Variance", 
+     xlab = "", ylab = "")
+
+
+#Make the variability larger with increasing values of x
+
+error_mean = 0
+error_sd = 0.1
+
+y_observed_2 = 
+  y_pred + 
+  rnorm(
+    n = n_pts, 
+    mean = error_mean, 
+    sd = error_sd * x_sim)
+
+par(mfrow = c(1, 2))
+plot(x_sim, y_observed, 
+     main = "Normally Distributed Errors\n Constant Variance", 
+     xlab = "", ylab = "")
+plot(x_sim, y_observed_2, 
+     main = "Normally Distributed Errors\n Increasing Variance", 
+     xlab = "", ylab = "")
+
+
+
+#Exponentially-distributed errors
+
+error_mean = 0
+error_sd = 0.1
+
+y_observed_3 = 
+  y_pred + 
+  rexp(50, rate = 1.2)
+
+plot(x_sim, y_observed_3, 
+     main = "Exponentially Distributed Errors", 
+     xlab = "", ylab = "")
+
+#CHOOSING A MODEL
+
+par(mfrow = c(3, 1))
+plot(x_sim, y_observed)
+plot(x_sim, y_observed_2)
+plot(x_sim, y_observed_3)
+
+
+
+par(mfrow = c(3, 1))
+hist(y_observed - y_pred, main = "sim data 1", xlab = "observed y=values")
+hist(y_observed_2 - y_pred, main = "sim data 2", xlab = "observed y=values")
+hist(y_observed_3 - y_pred, main = "sim data 3", xlab = "observed y=values")
+
+
+```
+
+
+ASSIGNMENT
+
+
+```{r}
+require(here)
+
+dispersal = read.csv(here("data/dispersal.csv"))
+
+line_point_slope = function(x, x1, y1, slope)
+  {
+    get_y_intercept = 
+      function(x1, y1, slope) 
+        return(-(x1 * slope) + y1)
+    
+    linear = 
+      function(x, yint, slope) 
+        return(yint + x * slope)
+    
+    return(linear(x, get_y_intercept(x1, y1, slope), slope))
+  }
+
+```
+
+1. Complete the template R code (from the walkthrough above) to build your exponential function. Make sure you read the note about parameter "b" in the lab instructions.
+
+```{r}
+exp_fun = function(x, a, b)
+{
+  return(a*exp(-b*x))
+}
+```
+
+2. To gain visual intuition, try using curve() to plot your function.
+
+```{r}
+curve(
+  exp_fun(x, 1.9, 0.1), add = FALSE, from = 0, to = 50,
+  axes = TRUE, col = "black", lty = "solid",
+  xlab = "x-values",
+  ylab = "y-values",
+  main = "Various Exponential Curves"
+  )
+curve(
+  exp_fun(x, 1.9, 0.3), add = TRUE, col = "black", lty = "dotted"
+  )
+curve(
+  exp_fun(x, 1.2, 0.2), add = TRUE, col = "red", lty = "solid"
+)
+curve(
+  exp_fun(x, 1.2, 0.4), add = TRUE, col = "red", lty = "dotted"
+)
+
+```
+
+3. Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter "a".
+
+- Changing parameter "a" affects the where the curve starts. For example, if the "a" parameter had a value of 1.4, the curve would start at a y value of 1.4.
+
+4. Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter "b".
+
+- The "b" parameter affects the steepness of the curve.The smaller the value, the steeper the curve. The larger the "b" parameter is the steeper the curve.
+
+5.  In your lab report, include a single plot containing 6 Ricker curves. 
+
+```{r}
+#RICKER
+
+ricker_fun = function(x, a, b) 
+{
+  return(a * x * exp(-b * x))
+}
+
+
+
+curve(
+  ricker_fun(x, 25, 0.1), 
+  from = 0, to = 100, add = FALSE, col = "black", lty = "solid",
+  xlab = "x-values",
+  ylab = "y-values",
+  main = "Various Ricker Curves")
+curve(
+  ricker_fun(x, 20, 0.2), 
+  from = 0, to = 100, add = TRUE, col = "black", lty = "dotted"
+  )
+curve(
+  ricker_fun(x, 10, 0.2), 
+  from = 0, to = 100, add = TRUE, col = "black", lty = "dotted"
+  )
+curve(
+  ricker_fun(x, 75, 0.3), 
+  from = 0, to = 100, add = TRUE, col = "red", lty = "solid"
+  )
+curve(
+  ricker_fun(x, 50, 0.3), 
+  from = 0, to = 100, add = TRUE, col = "red", lty = "dotted"
+  )
+curve(
+  ricker_fun(x, 40, 0.3), 
+  from = 0, to = 100, add = TRUE, col = "red", lty = "dotted"
+  )
+
+
+```
+
+6. Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter "a".
+
+- Changing the "a" parameter value affected the height and steepness of the Ricker curve. The larger the value of parameter "a" the higher and steeper the curve.
+
+7. Observe how the curves vary as you change the two parameters’ values. Qualitatively describe what happens to the curve as you vary parameter "b".
+
+- Changing the value of parameter "b" affected the location of the peak. The smaller the values of "b" the the closer to 0. The larger the values, the further from 0.
+
+
+8. Linear Model. Provide the values of the slope, x1, and y1 parameters you chose. Briefly describe how you chose the values.
+
+- x1 = 800, y1 = 0.2. I chose these values because I though they best represented the center point of the data
+
+9. In your lab report, include a scatterplot of the salamander data with your fitted linear model.
+
+```{r}
+plot(dispersal$dist.class, dispersal$disp.rate.ftb,
+     xlab = "Distance Class",
+     ylab = "Standardized Dispersal Rate",
+     main = "Marbled Salamander - First Time Breeders")
+
+
+curve(line_point_slope(x, 800, 0.2, -0.0003), add = TRUE, 
+      col = "darkgoldenrod", lty = "dashed")
+
+```
+10. Exponential Model. Provide the values of the a and b. Briefly describe how you chose the values.
+
+- a = 1.4; b = 0.003. I set a = 1.4 because that is where I wanted my curve to start. I set b = 0.003 because it gave the curve a slope that fit my data best.
+
+11. In your lab report, include a scatterplot of the salamander data with your fitted exponential model.
+
+```{r}
+plot(dispersal$dist.class, dispersal$disp.rate.ftb,
+     xlab = "Distance Class",
+     ylab = "Standardized Dispersal Rate",
+     main = "Marbled Salamander - First Time Breeders")
+
+curve(exp_fun(x, 1.4, 0.003), from = 0, to = 1500, add = TRUE, 
+      col = "steelblue", lty = "solid")
+
+```
+
+12. Ricker Model Provide the values of the a and b. Briefly describe how you chose the values.
+
+- a = 0.01; b= 1/200. I set a = 0.01 because it gave the curve a steepness that fit the data best. I set b = 1/200 because it made the curve peak at an x value of 200.
+
+13. In your lab report, include a scatterplot of the salamander data with your fitted ricker model.
+
+```{r}
+plot(dispersal$dist.class, dispersal$disp.rate.ftb,
+     xlab = "Distance Class",
+     ylab = "Standardized Dispersal Rate",
+     main = "Marbled Salamander - First Time Breeders")
+
+curve(ricker_fun(x, 0.01, 1/200), from = 0, to = 1500, add = TRUE, 
+      col = "darkslateblue", lty = "dotted")
+```
+
+
+14. Show the R code you used to create your data frame of model residuals.
+
+```{r}
+dispersal_dat = data.frame(x = dispersal$dist.class, 
+                           y_observed = dispersal$disp.rate.ftb)
+#dispersal_dat
+
+lin_predicted = line_point_slope(dispersal_dat$x, 800, 0.2, -0.0003)
+exp_predicted = exp_fun(dispersal_dat$x, 1.4, 0.003)
+rick_predicted = ricker_fun(dispersal_dat$x, 0.01, 1/200)
+
+resids_linear = dispersal_dat$y_observed - lin_predicted
+resids_exp = dispersal_dat$y_observed - exp_predicted
+resids_ricker = dispersal_dat$y_observed - rick_predicted
+
+dispersal_dat$resids_linear = resids_linear
+dispersal_dat$resids_exp = resids_exp
+dispersal_dat$resids_ricker = resids_ricker
+#dispersal_dat
+```
+
+
+15. In your lab report, include histograms of the residuals for each of your three models. You may create a single figure with three panels, or include three separate figures.
+
+```{r, fig.height= 10, fig.width= 7}
+par(mfrow = c(3,1))
+hist(dispersal_dat$resids_linear,
+     xlab = "Residuals",
+     ylab = "Frequency",
+     main = "Histogram of the \nLinear Model's Residuals")
+hist(dispersal_dat$resids_exp, 
+     xlab = "Residuals",
+     ylab = "Frequency",
+     main = "Histogram of the \nExponential Model's Residuals")
+hist(dispersal_dat$resids_ricker,
+     xlab = "Residuals",
+     ylab = "Frequency",
+     main = "Histogram of the \nRicker Model's Residuals")
+```
+

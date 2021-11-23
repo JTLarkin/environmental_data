@@ -1,0 +1,87 @@
+---
+title: "Probability and Frequentist Concepts"
+author: 'JT Larkin (Partner: Ethan Rutledge)'
+date: "10/21/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Questions {.tabset .tabset-pills}
+
+## Q1
+
+```{r}
+dbinom(3, 4, 0.75)
+```
+
+## Q2
+
+```{r}
+pbinom(3, 4, 0.75)
+```
+
+## Q3
+
+```{r}
+1 - pbinom(3, 5, 0.75)
+```
+
+## Q4
+
+```{r}
+pnorm(1.2, 2, 2)
+```
+
+## Q5
+
+```{r}
+1- pnorm(1.2, 2, 2)
+```
+
+## Q6
+
+```{r}
+pnorm(3.2, 2, 2) - (pnorm(1.2, 2, 2))
+```
+
+## Q7 
+
+It slowly starts to take on the shape of the curve I made when I set the alpha and beta values (a = 0.38, B = 1.92, Right skewed).
+
+## Q8
+
+It takes the shape of the curve I made when I set the alpha and beta values much more quickly than in question 7 (a = 0.38, B = 1.92, Right skewed). 
+
+## Q9
+
+It takes on the shape of a normal distribution very quickly and as I continued to press it, the more normally distributed the curve became. 
+
+## Q10
+
+We are doubling the amount of data we were collecting when we have a sample size of 2. The more samples we collect the closer to the true mean value we will get. When we moved the number of samples to 15 the observed mean value was much closer to the true mean value.
+
+## Q11
+
+Sample size and standard deviation.
+
+## Q12
+
+15,625 possible 3 letter words
+
+```{r}
+25 * 25 * 25
+25^3
+```
+
+## Q13
+
+```{r}
+410 * 40 * 81
+25^1328400
+```
+B = 25^1328400. This number is so large that R gives it the value of infinity. 

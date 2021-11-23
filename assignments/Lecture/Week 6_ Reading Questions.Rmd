@@ -1,0 +1,69 @@
+---
+title: "Week 6 Reading Questions"
+author: "JT Larkin"
+date: "10/6/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+1. In a short paragraph, describe a baseline scenario regarding seed predataion. At the end, state the null hypothesis for seed predation.
+  * We are running an experiment to understand squirrel foraging preference. For our study, we selected acorns and walnuts. We place an equal amount of acorns and walnuts in the campus lawn during optimal foraging conditions. After 6 hrs we come back and count the number of acorns and walnuts that remain. 
+  * Null Hypothesis: Squirrels do not have a preference between acorns and walnuts.
+
+2. 
+
+```{r}
+# Clear your R environment to make 
+# sure there are no stray variables.
+
+rm(list = ls())
+
+pol_n_predation = 26
+pol_n_no_predation = 184
+pol_n_total = 210
+pol_predation_rate = 26/210
+
+psd_n_predation = 25
+psd_n_no_predation = 706
+psd_n_total = 731
+psd_predation_rate = 25/731
+  
+  
+  
+#SELF-TEST
+  
+print(
+  paste0(
+    "The seed predation rate for Polyscias fulva is: ",
+    round(pol_predation_rate, digits = 3))) 
+
+print(
+  paste0(
+    "The seed predation rate for Pseudospondias microcarpa is: ",
+    round(psd_predation_rate, digits = 3)))
+```
+
+3. 
+```{r}
+seedtab = matrix(c("Polyscias fulva (pol)", "Pseudospondias microcarpa (psd)", 26, 25, 184, 706, 210, 731, 0.124, 0.034), ncol = 2, byrow = TRUE)
+colnames(seedtab) = c("", "")
+rownames(seedtab) = c("Species", "Any taken", "None taken", "N", "Predation rate")
+seedtab = as.table(seedtab) 
+seedtab
+```
+
+4. 3.65 pol are predated to every 1 psd.
+
+```{r}
+#Larger number divided by the smaller number
+
+0.124/0.034
+```
+
+
+
+

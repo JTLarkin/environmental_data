@@ -1,0 +1,389 @@
+---
+title: 'Lab 08: Modeling 1'
+author: "JT Larkin (Partners: Ethan Rutledge)"
+date: "11/3/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+## Walkthrough
+require(simpleboot)
+require(boot)
+require(here)
+require(palmerpenguins)
+veg1 = read.csv(here("data", "vegdata.csv"))
+bird = read.csv(here("data", "bird.sub.csv"))
+hab = read.csv(here("data", "hab.sub.csv"))
+
+
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+
+```
+
+```{r include=FALSE}
+#Parametric Two-sample test
+
+t.test(flipper_length_mm ~ species, data = penguin_dat, alternative = "less")
+
+#Bootstrap Two-sample test
+pen_boot = 
+  two.boot(subset(penguin_dat, species == "Adelie")$flipper_length_mm, 
+           subset(penguin_dat, species == "Chinstrap")$flipper_length_mm, 
+           FUN = mean, 
+           R = 10000, 
+           na.rm = TRUE)
+
+```
+
+```{r include=FALSE}
+#Tree data
+
+boxplot(pine ~ treatment, dat = veg1)
+
+
+#Tree treatments
+
+dat_tree = droplevels(subset(veg1, treatment %in% c("control", "clipped")))
+boxplot(pine ~ treatment, dat = dat_tree)
+
+table(dat_tree$treatment)
+```
+
+
+```{r include=FALSE}
+#Nonparametric two-sample test
+
+wilcox.test(pine ~ treatment, dat = dat_tree)
+
+#Bootstrap
+
+tree_boot = 
+  two.boot(
+    subset(dat_tree, treatment == "clipped")$pine,
+    subset(dat_tree, treatment == "control")$pine,
+    FUN = mean,
+    R = 10000,
+    na.rm = TRUE
+  )
+
+sum(tree_boot$t >= 0)
+sum(tree_boot$t < 0)
+
+boot.ci(tree_boot)
+
+
+hist(tree_boot$t, main = "Bootstrap sampling distribution")
+
+quantile(tree_boot$t, 0.025)
+```
+```{r include=FALSE}
+# Resampling: linear regression
+
+## Bird data
+
+dat_all = merge(
+  bird, 
+  hab,
+  by = c("basin", "sub"))
+
+head(dat_all[, c("b.sidi", "s.sidi")])
+
+
+
+# b.sidi
+## Calculate the sample mean and sd:
+b_sidi_mean = mean(dat_all$b.sidi, na.rm = TRUE)
+b_sidi_sd   = sd(dat_all$b.sidi, na.rm = TRUE)
+
+## Use the subset-by-name symbol ($) to create a new column of z-standardized values.
+
+dat_all$b.sidi.standardized = (dat_all$b.sidi - b_sidi_mean)/b_sidi_sd
+
+mean(dat_all$b.sidi.standardized)
+sd(dat_all$b.sidi.standardized)
+
+
+# s.sidi
+## Calculate the sample mean and sd:
+s_sidi_mean = mean(dat_all$s.sidi, na.rm = TRUE)
+s_sidi_sd   = sd(dat_all$s.sidi, na.rm = TRUE)
+
+## Use the subset-by-name symbol ($) to create a new column of z-standardized values.
+
+dat_all$s.sidi.standardized = (dat_all$s.sidi - s_sidi_mean)/s_sidi_sd
+
+mean(dat_all$s.sidi.standardized)
+sd(dat_all$s.sidi.standardized)
+
+```
+```{r include=FALSE}
+
+plot(
+  b.sidi ~ s.sidi, data = dat_all,
+  main = "Simpson's diversity indices",
+  xlab = "Vegetation cover diversity",
+  ylab = "Bird diversity")
+
+
+# simple linear regression
+
+fit_1 = lm(b.sidi ~ s.sidi, data = dat_all)
+coef(fit_1)
+
+
+slope_observed = coef(fit_1)[2]
+
+plot(
+  b.sidi ~ s.sidi, data = dat_all,
+  main = "Simpson's diversity indices",
+  xlab = "Vegetation cover diversity",
+  ylab = "Bird diversity")
+abline(fit_1)
+```
+```{r include=FALSE}
+# The slope coefficient
+
+dat_1 = 
+  subset(
+    dat_all,
+    select = c(b.sidi, s.sidi))
+
+#Resampling the data
+
+index_1 = sample(nrow(dat_1), replace = TRUE)
+index_2 = sample(nrow(dat_1), replace = TRUE)
+
+dat_resampled_i = 
+  data.frame(
+    b.sidi = dat_1$b.sidi[index_1],
+    s.sidi = dat_1$s.sidi[index_2]
+  )
+
+fit_resampled_i = lm(b.sidi ~ s.sidi, data = dat_resampled_i)
+slope_resampled_i = coef(fit_resampled_i)[2]
+
+print(slope_resampled_i)
+
+
+
+## scatterplot with regression line
+
+plot(
+  b.sidi ~ s.sidi, data = dat_resampled_i,
+  main = "Simpson's diversity indices",
+  xlab = "Vegetation cover diversity",
+  ylab = "Bird diversity")
+abline(fit_resampled_i)
+
+
+```
+
+
+```{r include=FALSE}
+# Randomization Loop
+
+m = 10000 
+result = numeric(m)
+
+for(i in 1:m)
+{
+ index_1 = sample(nrow(dat_1), replace = TRUE)
+ index_2 = sample(nrow(dat_1), replace = TRUE)
+
+dat_resampled_i = 
+  data.frame(
+    b.sidi = dat_1$b.sidi[index_1],
+    s.sidi = dat_1$s.sidi[index_2]
+  )
+
+fit_resampled_i = lm(b.sidi ~ s.sidi, data = dat_resampled_i)
+result[i] = coef(fit_resampled_i)[2]
+} 
+
+
+
+hist(result)
+head(result)
+
+
+```
+
+```{r include=FALSE}
+#The Null Distribution 
+
+hist(result, main = "Null Distribution of Regression Slope", xlab = "Slope Parameter")
+abline(v = slope_observed, lty = 2, col = "red", lwd = 2)
+
+
+#Critical Slope Value
+quantile(result, c(.05))
+
+
+# Observed slope of the real data
+
+fit_1 = lm(b.sidi ~ s.sidi, data = dat_all)
+coef(fit_1)
+slope_observed = coef(fit_1)[2]
+slope_observed
+
+
+# How many slopes from the Monte Carlo randomization were equal to or less than the observed slope?
+
+sum(result < -0.02437131)
+# 22
+
+# Exact p-value for this lower one-side test
+# 22e-4
+```
+
+################################################################################
+
+
+ASSIGNMENT
+
+
+1. 
+```{r}
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+pen_boot = 
+  two.boot(subset(penguin_dat, species == "Adelie")$flipper_length_mm, 
+           subset(penguin_dat, species == "Chinstrap")$flipper_length_mm, 
+           FUN = mean, 
+           R = 10000,
+           na.rm = TRUE)
+str(pen_boot)
+sd(pen_boot$t)
+```
+
+2.
+```{r}
+hist(pen_boot,
+     xlab = "Standard Deviation",
+     ylab = "Frequency",
+     main = "Standard Deviation Of The Differences In \nMean Flipper Length A Bootstrap Simulation",
+     col = 2)
+```
+
+3. -3.89633 to -7.8269
+```{r}
+quantile(pen_boot$t, 0.975)
+quantile(pen_boot$t, 0.025)
+```
+
+4. No, I do not think the at the difference in means follows a skewed distribution. The distribution is not centered over 0, but the differences in means are still normally distributed. The mean and median are roughly the same value which also suggests the differences in means are normally distributed. If the median differed from the mean, the differences would have a skewed distribution. 
+```{r}
+mean(pen_boot$t)
+median(pen_boot$t)
+hist(pen_boot$t,
+     xlab = "Differance In Mean",
+     ylab = "Frequency",
+     main = "The Difference In Mean Flipper Length \nA Bootstrap Simulation",
+     col = 2)
+```
+
+5. 
+```{r}
+pen_ecdf = ecdf(pen_boot$t)
+```
+
+6. 
+```{r}
+1 - pen_ecdf(-4.5)
+```
+
+7. 
+```{r}
+pen_ecdf(-8)
+```
+
+8. 
+  * Null: There is no difference in the difference in mean flipper length between Adelie and Chinstrap penguins.
+  * Alternative: There is a difference in the difference in mean flipper length between Adelie and Chinstrap penguins. 
+
+9. p-value = 0.1005
+```{r}
+veg = droplevels(subset(veg1, treatment %in% c("control", "clipped")))
+veg
+
+wilcox.test(pine ~ treatment, dat = veg)
+```
+
+10. Endpoints: 4.12 and 30.12
+```{r}
+tree_boot = 
+  two.boot(
+    subset(dat_tree, treatment == "clipped")$pine,
+    subset(dat_tree, treatment == "control")$pine,
+    FUN = mean,
+    R = 10000,
+    na.rm = TRUE
+  )
+
+boot.ci(tree_boot)
+
+```
+
+11. Observed mean difference is 15.95. Thus, it does fall within the CI.
+```{r}
+quantile(tree_boot$t, 0.025)
+quantile(tree_boot$t, 0.975)
+
+mean(tree_boot$t)
+```
+
+12. The Simpson diversity index is used to quantify biodiversity at a site. It uses the number of species present and abundance of those species to calculate diversity. As species richness and evenness increase, diversity increases as well. 
+
+13. 
+```{r}
+s_sidi_mean = mean(dat_all$s.sidi, na.rm = TRUE)
+s_sidi_sd   = sd(dat_all$s.sidi, na.rm = TRUE)
+
+z_standardized = (dat_all$s.sidi - s_sidi_mean)/s_sidi_sd
+z_standardized
+```
+
+14. 
+```{r}
+m = 10000 
+result = numeric(m)
+
+for(i in 1:m)
+{
+ index_1 = sample(nrow(dat_1), replace = TRUE)
+ index_2 = sample(nrow(dat_1), replace = TRUE)
+
+dat_resampled_i = 
+  data.frame(
+    b.sidi = dat_1$b.sidi[index_1],
+    s.sidi = dat_1$s.sidi[index_2]
+  )
+
+fit_resampled_i = lm(b.sidi ~ s.sidi, data = dat_resampled_i)
+result[i] = coef(fit_resampled_i)[2]
+} 
+
+```
+
+15.
+```{r}
+hist(result, main = "Null Distribution of Regression Slope", xlab = "Slope Parameter")
+abline(v = slope_observed, lty = 1, col = "blue", lwd = 2)
+abline(v = quantile(result, c(.05)), lty = 3, col = "red", lwd = 2)
+```
+
+16. Critical value = -0.01365316. No, the critical value was greater than the slope observed.
+```{r}
+fit_1 = lm(b.sidi ~ s.sidi, data = dat_all)
+coef(fit_1)
+slope_observed = coef(fit_1)[2]
+slope_observed
+
+quantile(result, c(.05))
+```
+
+17. The slope we observed is on the lower end of our distribution (see histogram from question 15). Rarely would we expect to see a slope as low or lower than what we observed.Thus, we can say that the slope we observed was a rare occurrence. 
+

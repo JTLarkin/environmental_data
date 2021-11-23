@@ -1,0 +1,88 @@
+---
+title: "In-Class Models 1"
+author: "JT Larkin"
+date: "11/2/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+require(here)
+require(palmerpenguins)
+```
+```{r}
+dat_ade = droplevels(subset(penguins, species == "Adelie"))
+
+hist(dat_ade$body_mass_g, main = "Adelie Penguins: Body Mass", xlab = "body mass (g)")
+```
+Q1
+```{r}
+boxplot(body_mass_g ~ sex,
+        data = dat_ade,
+        xlab = "Sex",
+        ylab = "Body Mass (g)",
+        main = "Body Mass of Adelie Penguins")
+
+```
+
+Q2
+```{r}
+#?t.test()
+
+dat_fem = droplevels(subset(dat_ade, sex == "female"))
+
+t.test(dat_fem$body_mass_g, alternative = c("two.sided"), mu = 0)
+```
+Two-tailed t-test because it does not specify if its greater or less than zero grams. We just want to know if it is different than zero.
+
+
+Q3
+
+Yes, the mean is significantly different than zero. We are asserting the alternative that there is a difference. 
+
+
+Q4
+```{r}
+dat_mal = droplevels(subset(dat_ade, sex == "male"))
+
+t.test(dat_mal$body_mass_g, alternative = "greater", mu = 4000)
+```
+This is a one-tailed t-test. We specify that we want to know if the mean body mass is greater than 4000 g. 
+
+
+Q5 
+We are accepting the null that the mean body mass of male Adelie penguins is not greater than 4000. We would a mean body mass less than 4000 g approximately 1/15 experiments.
+
+Q6
+
+```{r}
+t.test(dat_fem$body_mass_g, y = dat_mal$body_mass_g, alternative = "two.sided")
+```
+
+Q7
+
+Yes, there is a significant difference between male and female body masses.
+
+
+
+Q8
+
+```{r}
+t.test(dat_fem$body_mass_g, y = dat_mal$body_mass_g, alternative = "less")
+
+# or 
+
+t.test(dat_mal$body_mass_g, y = dat_fem$body_mass_g, alternative = "greater")
+```
+
+Q9
+```{r}
+t.test(dat_mal$body_mass_g, y = dat_fem$body_mass_g, alternative = "less")
+```
+
+Q10
+Because practically all of the male mean weights will be greater than female mean weights, a p-value of one makes sense. Basically, its 1 - the p-value from question 8 which is practically 1.

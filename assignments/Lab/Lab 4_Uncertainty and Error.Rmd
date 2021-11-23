@@ -1,0 +1,384 @@
+---
+title: 'Lab 4: Uncertainty and Error'
+author: "JT Larkin (Partners: Ethan Rutledge, Sonja Glasser, Bonnie Turek)"
+date: "9/28/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, include=FALSE}
+require(here)
+
+#Plotting a PDF Curve
+# Generate a vector of x-values
+x = seq(-3, 3, length.out = 1000)
+y = dnorm(x)
+
+plot(x, y, main = "Normal PDF", type = "l")
+abline(h = 0)
+
+
+
+
+
+
+#Sampling from a distribution
+
+require(palmerpenguins)
+hist(
+  penguins$body_mass_g,
+  main = "Histogram of Penguin Body Mass",
+  xlab = "Body Mass (g)")
+
+
+
+#"na.rm = TRUE" removes the N/A values if we set it to false it would keep N/A
+mean(penguins$body_mass_g, na.rm = TRUE) 
+sd(penguins$body_mass_g, na.rm = TRUE)
+nrow(penguins)
+
+
+#Random Penguin Data
+
+dat_1 = rnorm(n = 344, mean = 4202, sd = 802)
+dat_2 = rnorm(n = 344, mean = 4202, sd = 802)
+dat_3 = rnorm(n = 344, mean = 4202, sd = 802)
+dat_4 = rnorm(n = 344, mean = 4202, sd = 802)
+
+
+par(mfrow = c(2, 2))
+
+hist(dat_1)
+hist(dat_2)
+hist(dat_3)
+hist(dat_4)
+
+#These histograms are more normally distributed than the histogram with the real data
+
+
+
+#Random Uniform Numbers
+set.seed(12)
+dat_unif = runif(n = 27, min = 0, max = 4) #Larger n values =  more uniform distribution
+hist(dat_unif)
+
+
+
+
+
+#Randomness and Replication
+set.seed(1)
+dat_unif_1 = runif(n = 270, min = 0, max = 4)
+set.seed(1)
+dat_unif_2 = runif(n = 270, min = 0, max = 4)
+
+par(mfrow = c(1, 2))
+hist(dat_unif_1)
+hist(dat_unif_2)
+
+
+
+#LINE POINT SLOPE FUNCTION
+# Calculates the value of y for a linear function, given the coordinates
+# of a known point (x1, y1) and the slope of the line.
+line_point_slope = function(x, x1, y1, slope)
+{
+  get_y_intercept = 
+    function(x1, y1, slope) 
+      return(-(x1 * slope) + y1)
+  
+  linear = 
+    function(x, yint, slope) 
+      return(yint + x * slope)
+  
+  return(linear(x, get_y_intercept(x1, y1, slope), slope))
+}
+
+#Measuring Error: Calculating Residuals
+
+set.seed(123)
+n = 17
+slope = 0.7
+intcp = 0.2
+
+guess_x = 6
+guess_y = 4
+guess_slope = 0.72
+
+x = runif(n = n, min = 1, max = 10)
+y = rnorm(n = n, mean = slope * x + intcp)
+
+plot(x, y, pch = 16)
+curve(line_point_slope(x, guess_x, guess_y, guess_slope), add = T)
+
+
+#CREATING SOME DATA
+
+set.seed(123)
+n_pts = 24
+x_min = 1
+x_max = 10
+x = runif(n = n_pts, min = x_min, max = x_max)
+
+dat = data.frame(x = x, y_observed = rnorm(n_pts))
+
+plot(y_observed ~ x, data = dat, pch = 8)
+
+
+
+#FITTING A LINEAR DETERMINISTIC MODEL
+set.seed(76)
+
+n_pts = 10
+x_min = 1
+x_max = 10
+x = runif(n = n_pts, min = x_min, max = x_max)
+
+dat = data.frame(x = x, y_observed = rnorm(n_pts))
+
+plot(y_observed ~ x, data = dat, pch = 8)
+
+guess_x = 6
+guess_y = 0
+guess_slope = 0.1
+
+plot(y_observed ~ x, data = dat, pch = 8)
+curve(line_point_slope(x, guess_x, guess_y, guess_slope), add = T)
+
+
+
+
+
+y_predicted = line_point_slope(dat$x, guess_x, guess_y, guess_slope)
+dat$y_predicted = y_predicted
+
+#dat
+
+
+
+##CALCULATE RESIDUALS
+
+resids = dat$y_observed - dat$y_predicted
+resids
+
+dat$resids = resids
+
+abs(sum(dat$resids))
+
+
+
+##PLOT THE RESIDUALS
+
+plot(resids ~ y_observed, data = dat, 
+     xlab = "Model Residuals", 
+     ylab = "Observed Values",
+     main = "Residual Scatterplot: Linear Model",
+     col = "red",
+     pch = 20)
+
+hist(resids, 
+     xlab = "Residual Values", 
+     ylab = "Frequency",
+     main = "Histogramof Model Residuals: Linear Model",
+     col = "darkgoldenrod2")
+```
+
+
+
+
+
+
+ASSIGNMENT
+
+1. 
+```{r}
+pop_mean = 10.4
+pop_sd = 2.4
+
+
+norm_17 = rnorm(n = 17, mean = pop_mean, sd = pop_sd)
+norm_30 = rnorm(n = 30, mean = pop_mean, sd = pop_sd)
+norm_300 = rnorm(n = 300, mean = pop_mean, sd = pop_sd)
+norm_3000 = rnorm(n = 3000, mean = pop_mean, sd = pop_sd)
+```
+
+2.
+
+![](C:\Users\larki\OneDrive - University of Massachusetts\ECo 634\environmental_data\images\Lab\lab_04_hist_01.png)
+
+```{r}
+png(filename = here("images","Lab", "lab_04_hist_01.png"), width = 1500, height = 1600, res = 180)
+
+
+par(mfrow = c(2,2))
+
+hist(norm_17, 
+     main = 'Histogram of "norm_17" which \nhas 17 randomly generated data points',
+     xlab = "norm_17 data",
+     ylab = "Frequency",
+     col = "steelblue4")
+hist(norm_30, 
+     main = 'Histogram of "norm_30" which \nhas 30 randomly generated data points',
+     xlab = "norm_30 data",
+     ylab = "Frequency",
+     col = "goldenrod")
+hist(norm_300,
+     main = 'Histogram of "norm_300" which \nhas 300 randomly generated data points',
+     xlab = "norm_300 data",
+     ylab = "Frequency",
+     col = "darkgoldenrod4")
+hist(norm_3000,
+     main = 'Histogram of "norm_3000" which \nhas 3000 randomly generated data points',
+     xlab = "norm_3000 data",
+     ylab = "Frequency",
+     col = "orange")
+
+dev.off()
+```
+3. PNG submitted as "lab_04_hist_01.png".
+
+
+4. As we increased the number randomly generated data points the histograms became more normally distributed.Histograms with a lower number of randomly generated data points appeared to be more uniformly distributed.Additionally, some of the histograms had a different number of columns. Finally, as one could expect, the scale of the y-axis changed as the number of random data points increased.   
+
+5. The shapes of the histograms are different because they have differing amounts of data points.
+
+
+
+6. mean = 0
+sd = 1
+
+
+7. 
+```{r}
+# Generate a vector of x-values
+svg(filename = here("images", "Lab", "norm_1.svg"), height = 7, width = 7)
+
+x = seq(3, 18, length.out = 1000)
+y = dnorm(x, mean = pop_mean, sd = pop_sd)
+
+plot(x, y, main = "Normal Curve with a \nMean of 10.4 and SD of 2.4", 
+     type = "l", 
+     xlim = c(3, 18),
+     xlab = "X variable",
+     ylab = "Y variable")
+abline(h = 0)
+
+dev.off()
+```
+
+8. SVG was uploaded as "norm_1.svg".
+
+
+
+9. 
+```{r}
+svg(filename = here("images", "Lab", "Lab4_Ques10.svg"), height = 10, width = 10)
+
+set.seed(154)
+n_pts = 17
+my_size = 20
+x = rbinom(n = n_pts, size = my_size, prob = 0.3)
+
+
+dat_set = data.frame(x = x, y_observed = rnorm(n_pts))
+#dat_set
+
+par(mfrow = c(2,2))
+hist(dat_set$x, 
+     col = "darkgoldenrod2", 
+     main = "Histogram of X",
+     xlab = "'X' variable",
+     ylab = "Frequency")
+
+hist(dat_set$y_observed, 
+     col = adjustcolor("steelblue", alpha.f = 0.2), 
+     main =  "Histogram of Y",
+     xlab = "'y_observed' variable",
+     ylab = "Frequency")
+
+plot(y_observed ~ x, 
+     data =  dat_set, 
+     pch = 20, 
+     col = adjustcolor("steelblue4", alpha.f = 0.7), 
+     main = "Scatterplot of x vs y_observed",
+     xlab = "'X' variable",
+     ylab = "'y_observed' variable")
+
+boxplot(dat_set, 
+        col = adjustcolor("steelblue2", alpha.f = 0.2), 
+        main = "Boxplots for the 2 variables x and y_observed",
+        xlab = "Variable",
+        ylab = "Frequency")
+
+dev.off()
+```
+
+
+10. Image was uploaded as "Lab4_Ques10.svg".
+
+
+11. 
+```{r}
+svg(filename = here("images", "Lab", "Lab4_Ques12.svg"), height = 7, width = 7)
+
+n_pts = 10
+x_min = 1
+x_max = 10
+x = runif(n = n_pts, min = x_min, max = x_max)
+dat_new = data.frame(x = x, y_observed = rnorm(n_pts))
+
+
+g_x= 5
+g_y= 0.5
+g_slope= -0.03
+
+plot(y_observed ~ x, data = dat_new, pch = 8, main = "Scatterplot of Random Uniform and Normal numbers", xlab= "Random uniform numbers", ylab= "Random normal numbers")
+curve(line_point_slope(x, g_x, g_y, g_slope), add = T)
+
+dev.off()
+```
+
+12. SVG was uploaded as "Lab4_Ques12.svg". 
+
+
+
+
+
+13.
+
+```{r}
+y_predicted1 = line_point_slope(dat_new$x, g_x, g_y, g_slope)
+dat_new$y_predicted1 = y_predicted1
+
+
+residuals = dat_new$y_observed - dat_new$y_predicted1
+#residuals
+
+dat_new$residuals = residuals
+
+```
+
+
+
+
+14. 
+```{r}
+par(mfrow = c(1,2))
+
+
+hist(dat_new$residuals,
+     main = "Histogram of the 'dat_new' \nresiduals",
+     xlab = "residual values from 'dat_new'",
+     ylab = "Frequency")
+plot(residuals ~ y_predicted1, data = dat_new,
+     main = "Scatterplot of the 'dat_new'\nresiduals vs y_predicted values ",
+     xlab = "'y_predicted' values",
+     ylab = "residual values")
+
+```
+

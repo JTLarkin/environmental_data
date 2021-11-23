@@ -1,0 +1,216 @@
+---
+title: "Using Models 1"
+author: "JT Larkin"
+date: "11/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Walkthrough {.tabset .tabset-pills}
+
+## Loading Data/Data Exploration
+```{r}
+require(here)
+
+catrate = read.csv(here("data", "catrate.csv"))
+head(catrate)
+summary(catrate$cat.rate)
+```
+
+
+```{r}
+hist(catrate$cat.rate,
+     xlab = " Catastrophe Rate",
+     ylab = "Frequency",
+     main = "Histogram of Catastrophe Rates")
+```
+
+## Normality Test 
+
+```{r}
+shapiro.test(catrate$cat.rate)
+```
+
+
+## Parametric One-Sample Test: The t-test
+```{r}
+t.test(catrate$cat.rate, mu = 2/7, alternative = "two.sided")
+```
+## One-sided Alternative Hypothesis
+```{r}
+t.test(catrate$cat.rate, mu = 2/7, alternative = "greater")
+
+t.test(catrate$cat.rate, mu = 2/7, alternative = "less")
+```
+
+
+## Non-Parametric One-Sample Test: The Wilcoxon Rank Sum Test
+
+```{r}
+wilcox.test(catrate$cat.rate, mu = 2 / 7)
+```
+
+## Comparing two sample means
+
+```{r}
+require(palmerpenguins)
+
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+
+
+summary(penguin_dat)
+
+boxplot(
+  flipper_length_mm ~ species, 
+  data = penguin_dat,
+  ylab = "Flipper Length (mm)")
+
+
+# Extract the Adelie penguin data
+dat_adelie = subset(penguin_dat, species == "Adelie")
+```
+
+## Parametric and Nonparametric Tests
+
+```{r}
+t.test(flipper_length_mm ~ species, data = penguin_dat)
+```
+
+```{r}
+wilcox.test(flipper_length_mm ~ species, data = penguin_dat)
+
+levels(penguin_dat$species)
+```
+
+
+# Questions {.tabset .tabset-pills}
+
+
+
+## Q1
+
+```{r}
+summary(catrate)
+
+hist(catrate$cat.rate,
+     xlab = "Catastrophe Rate",
+     ylab = "Frequency",
+     main = "Histogram of Catastrophe Rates")
+```
+
+## Q2
+
+```{r}
+shapiro.test(catrate$cat.rate)
+```
+
+## Q3
+
+The null hypothesis for a Shapiro-Wilk test is "The data were sampled from a normally-distributed population".
+
+## Q4
+
+The p-value from our Shapiro-Wilk test was significant (0.04097). This means that we would assert the alternative hypothesis that the data were not sampled from a normally-distributed population. Although the p-value is considered significant, it is still relatively close to 0.05. Thus, I do not think we can say that there is strong evidence. Rather, we could just say that there is evidence to support that the data came from a non-normally- distributed population.
+
+## Q5
+
+```{r}
+t.test(catrate$cat.rate, mu = 2/7, alternative = "two.sided")
+```
+
+## Q6
+
+The mean catastrophic rate is not different from the mean pond late-filling rate. 
+
+
+## Q7
+
+This is a two-tailed test since we are not specifying whether the mean catastrophic rate is greater or less than the mean pond late-filling rate. Rather we are testing that that there is a difference in some direction (not specified). 
+
+## Q8 
+
+The p-value from our one-sample t-test was 0.01193. So, if we conducted this experiment many more times we would see a false positive approximately 1 percent of the time (1/100 experiments).
+
+## Q9 
+CI: 0.3526-0.7261
+
+Our CI did not include zero. 
+
+## Q10
+
+The one-sample t-test's p-value was 0.01193. Thus, we rejected the null hypothesis and asserted the alternative. Since the p-value was considerably lower than 0.05 it is safe to conclude that there is strong evidence to reject the null.
+
+## Q11 
+
+```{r}
+wilcox.test(catrate$cat.rate, mu = 2/7)
+```
+
+## Q12
+
+The p-value from our t-test was slightly larger than the p-value from the Wilcoxon test. This makes sense because the Wilcoxon test is adjusting for sample size.
+
+## Q13
+
+The Wilcoxon test's p-value was 0.006275. Thus, we rejected the null hypothesis and asserted the alternative. Since the p-value was considerably lower than 0.05 it is safe to conclude that there is strong evidence to reject the null.
+
+## Q14
+
+Both test resulted in the assertion of the alternative hypothesis. Additionally, the p-value's from both tests were small enough that they would be considered strong evidence for rejecting the null hypothesis. Thus, we conclude from both that there is strong evidence that the mean catastrophic rate is different from the mean pond late-filling rate. 
+
+## Q15 
+
+The Wilcoxon test is more appropriate for our data. We could tell from our Shapiro-test and histogram, we have a small sample size and the data has a non-normal distribution.
+
+## Q16
+
+
+```{r}
+require(palmerpenguins)
+penguin_dat = droplevels(subset(penguins, species != "Gentoo"))
+dat_ade = subset(penguin_dat, species == "Adelie")
+dat_chin = subset(penguin_dat, species == "Chinstrap")
+
+shapiro.test(dat_chin$flipper_length_mm)
+shapiro.test(dat_ade$flipper_length_mm)
+
+```
+
+
+## Q17
+The p-value from our Shapiro-Wilks test that we ran to conduct tests of normality for the flipper lengths of Chinstrap and Adelie penguins were 0.811 and 0.72, respectively. Thus, we are asserting the null hypothesis that the flipper lengths are normally-distributed for each species. Since the p-values are so large we know that the flipper lengths are very normally-distributed both species.
+
+## Q18
+
+```{r}
+png(filename = here("images","Lecture", "UsingModels_hist.png"), 
+    width = 1800, height = 700, res = 180)
+
+par(mfrow = c(1,2))
+
+hist(dat_chin$flipper_length_mm,
+     xlab = "Chinstrap Penguin Flipper Length (mm)",
+     ylab = "Frequency",
+     main = "Histogram of Chinstrap Penguin Flipper Length")
+hist(dat_ade$flipper_length_mm,
+     xlab = "Adelie Penguin Flipper Length (mm)",
+     ylab = "Frequency",
+     main = "Histogram of Adelie Penguin Flipper Length")
+
+dev.off()
+
+```
+
+
+## Q19
+
+The alternative hypothesis is: There is a difference in mean flipper length between Chinstrap and Adelie penguins. If we repeated this experiment many times, we would assert the null hypothesis (no difference in mean flipper length between the 2 species) less than 1/10 million experiments. In this t-sample test we did not specify which species flipper length was larger or smaller. Rather we just wanted to know if there was a difference. Thus, this is a 2-tailed test.
+
+
+## Q20
+```{r}
+t.test(flipper_length_mm ~ species, data = penguin_dat, alternative = "two.sided")
+```

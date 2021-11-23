@@ -1,0 +1,304 @@
+---
+title: "Lab 6_Introduction To Inferance"
+author: "JT Larkin (Partners: Sonja Glasser, Ethan Rutledge)"
+date: "10/20/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, include=FALSE}
+##Practice
+
+
+require(palmerpenguins)
+
+sse_mean = function(x)
+    { na.x<-is.na(x)
+          x2<- x[!na.x]
+                 sd.x2=sd(x2)
+                  n=length(x2)
+       sse = sd.x2/(sqrt(n))
+       return(sse)
+}
+
+
+sse_mean(penguins$bill_depth_mm)
+
+
+
+
+
+
+
+boxplot(flipper_length_mm ~ species, data = penguins)
+
+dat_pen = subset(penguins, species != "Gentoo")
+boxplot(flipper_length_mm ~ species, data = dat_pen)
+
+
+
+
+dat_pen = droplevels(subset(penguins, species != "Gentoo"))
+{
+  par(mfrow = c(1, 2))
+  boxplot(flipper_length_mm ~ species, data = penguins)
+  boxplot(flipper_length_mm ~ species, data = dat_pen)
+}
+
+
+
+# for reproducibility
+set.seed(123)
+
+flipper_shuffled = sample(penguins$flipper_length_mm, replace = TRUE)
+par(mfrow = c(1, 2))
+boxplot(flipper_length_mm ~ species, data = penguins)
+boxplot(flipper_shuffled ~ penguins$species, xlab = "species")
+
+##Classical t-test: Adelie and Chinstrap penguins
+
+t.test(dat_pen$flipper_length_mm ~ dat_pen$species)
+
+
+# Reset the random number generator state for reproduceablility
+set.seed(1)
+flipper_shuffled = sample(dat_pen$flipper_length_mm)
+
+
+boxplot(flipper_shuffled ~ dat_pen$species)
+
+
+#T-test on resampled data
+t_test_1 = t.test(flipper_shuffled ~ dat_pen$species)
+t_test_1
+
+
+##Differance of means
+
+t_test = t.test(dat_pen$flipper_length_mm ~ dat_pen$species)
+t_test
+
+t_test$estimate
+
+diff_observed = round(diff(t_test$estimate), digits = 3)
+print(diff_observed, digits = 3)
+
+
+
+#Using aggregate
+
+agg_means = aggregate(
+  flipper_length_mm ~ species, 
+  data = dat_pen, 
+  FUN = "mean", 
+  na.rm = TRUE)
+diff_observed = diff(agg_means[, 2])
+
+agg_means
+diff_observed
+
+
+
+##Sample sizes
+table(dat_pen$species)
+
+n_1 = 68
+n_2 = 152
+
+dat_1 = sample(dat_pen$flipper_length_mm, n_1, replace = TRUE)
+dat_2 = sample(dat_pen$flipper_length_mm, n_2, replace = TRUE)
+
+diff_simulated = 
+  mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+
+print(c(observed = diff_observed, simulated = diff_simulated))
+
+
+##Simulation Function
+x = dat_pen$flipper_length_mm
+n_1 = 68
+n_2 = 152
+
+dat_1 = sample(x, n_1, replace = TRUE)
+dat_2 = sample(x, n_2, replace = TRUE)
+
+diff_simulated = 
+  mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+
+
+
+two_group_resample = function(x, n_1, n_2)
+  {
+  dat_1 = sample(x, n_1, replace = TRUE)
+  dat_2 = sample(x, n_2, replace = TRUE)
+
+  diff_simulated = 
+  mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+ 
+  return(diff_simulated) 
+  }
+
+
+set.seed(54321)
+two_group_resample(dat_pen$flipper_length_mm, 68, 152)
+
+
+
+#Resampling experiment
+
+n = 200
+mean_differences = c()
+for (i in 1:n)
+{
+  mean_differences = c(
+    mean_differences,
+    two_group_resample(dat_pen$flipper_length_mm, 68, 152)
+  )
+}
+hist(mean_differences)
+
+sum(abs(mean_differences) >= diff_observed)
+
+
+
+#Retrieving named elements
+
+t_test = t.test(flipper_shuffled ~ dat_pen$species)
+str(t_test)
+t_test$estimate
+```
+
+
+################################################################################
+
+ASSIGNMENT
+
+
+1. 
+```{r}
+rm(list = ls())
+sse_mean = function(x)
+    { na.x<-is.na(x)
+          x2<- x[!na.x]
+                 sd.x2=sd(x2)
+                  n=length(x2)
+       sse = sd.x2/(sqrt(n))
+       return(sse)
+}
+
+sse_mean(penguins$body_mass_g)
+sse_mean(mtcars$mpg)
+```
+
+2.
+```{r}
+two_group_resample = function(x, n_1, n_2)
+  {
+  dat_1 = sample(x, n_1, replace = TRUE)
+  dat_2 = sample(x, n_2, replace = TRUE)
+
+  diff_simulated = 
+  mean(dat_1, na.rm = TRUE) - mean(dat_2, na.rm = TRUE)
+ 
+  return(diff_simulated) 
+  }
+```
+
+3. Our function is preforming a Monte Carlo resampling method which is simulating a null hypothesis (no difference between penguin mean flipper lengths). It shuffles each column separately so that the data is completely random.
+
+4.
+```{r}
+dat_pen2 = droplevels(subset(penguins, species != "Gentoo"))
+
+
+n = 2000
+mean_differences = c()
+for (i in 1:n)
+{
+  mean_differences = c(
+    mean_differences,
+    two_group_resample(dat_pen2$flipper_length_mm, 68, 152)
+  )
+}
+hist(mean_differences,
+     xlab = "Mean differences of simulated penguin mass data",
+     ylab = "Frequency",
+     main = "Histogram of mean differences \nfrom simulated data")
+```
+
+5. 0 of the resampled differences of means were greater than or equal to 5.8. Our p-value was very, very small meaning our finding was very significant. 
+
+```{r}
+t.test2 = t.test(dat_pen2$flipper_length_mm~dat_pen2$species)
+t.test2
+sum(abs(mean_differences) >= 5.8)
+```
+
+6. It will be a lot. It is not possible to give an exact number. It may occur at 10 million simulations or it may not occur until 25 million or 50 million simulations. Regardless, it will be a very long time because it is a very, very rare occurrence. 
+
+7.
+
+```{r}
+boxplot(dat_pen2$body_mass_g~dat_pen2$species, 
+        xlab = "Species",
+        ylab = "Mass in grams (g)",
+        main = "Boxplots of 2 Penguin Species Mass's")
+
+```
+
+8. 
+Group Means
+- Adellie: 3700.662 g
+- Chinstrap: 3733.088 g
+
+Difference Between Means
+- 32.42598
+
+```{r}
+agg_means = aggregate(
+  body_mass_g ~ species, 
+  data = dat_pen2, 
+  FUN = "mean", 
+  na.rm = TRUE)
+diff_crit = diff(agg_means[, 2])
+
+agg_means
+diff_crit
+```
+
+9. When running a t-test, we have 2 hypotheses: Null and the Alternative. The null was that there is no difference in mean mass between Adelie and Chinstrap penguins. The alternative is that there is a difference in mean mass between the 2 species. Since this is a 2-tailed t-test, we do not specify how they differ (e.g. Chinstrap penguins are heavier than Adelie), but rather just say that there is a difference. For a p-value less than 0.05 we accept the alternative, but for p-values greater than 0.05 we accept the null. We have a p-value of 0.5879, thus we accept the null that there is no difference in mean mass between the 2 species. About 60 percent of the time we will observe a difference of at least or greater than 32.42 grams.
+```{r}
+t.test(dat_pen2$body_mass_g ~ dat_pen2$species)
+
+```
+
+10. 613
+```{r}
+n = 1000
+mean_differences2 = c()
+for (i in 1:n)
+{
+  mean_differences2 = c(
+    mean_differences2,
+    two_group_resample(dat_pen2$body_mass_g, 68, 152)
+  )
+}
+
+
+
+t.test2 = t.test(dat_pen2$body_mass_g~dat_pen2$species)
+sum(abs(mean_differences2) >= diff_crit)
+```
+
+11.
+```{r}
+hist(mean_differences2,
+     xlab = "Mean differences of simulated penguin mass data",
+     ylab = "Frequency",
+     main = "Histogram of mean differences \nfrom simulated data")
+```
+

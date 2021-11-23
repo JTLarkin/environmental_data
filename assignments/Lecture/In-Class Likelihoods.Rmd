@@ -1,0 +1,101 @@
+---
+title: "Likelihoods_In Class"
+author: "JT Larkin"
+date: "10/21/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+require(here)
+
+bird = read.csv(here("data", "bird.sta.csv"))
+hab = read.csv(here("data", "hab.sta.csv"))
+
+dat_all = merge(bird, hab)
+dat_all
+```
+
+```{r, include = FALSE}
+## Likelinood of Two Observations
+
+x_observed = c(2, 6)
+print(x_observed)
+
+dpois(x = 2, lambda = 4.5)
+dpois(x = 6, lambda = 4.5)
+
+
+
+dpois(x = 2, lambda = 4.5) * dpois(x = 6, lambda = 4.5)
+
+wiwa_counts = c(2, 6)
+dpois(x = wiwa_counts, lambda = 4.5)
+
+
+
+prod(dpois(x = wiwa_counts, lambda = 4.5))
+
+
+sum(log(dpois(x = wiwa_counts, lambda = 4.5)))
+
+
+
+summary(dat_all$WIWA)
+hist(dat_all$WIWA)
+
+
+#Hist attempt 1 with breaks
+hist(dat_all$WIWA, breaks = 7)
+
+
+
+#Hist atempt 2 with breaks
+
+hist(dat_all$WIWA, breaks = 0:7)
+
+#Hist attempt 3 with breaks: Success!!!
+0:7 - 0.5
+hist(dat_all$WIWA, breaks = 0:7 - .5)
+
+
+#Histograms with (discrete) count data
+par(mfrow = c(1, 2))
+dat = dat_all$WIWA
+hist(dat, breaks = 0:(max(dat) + 1) - 0.5, main = "Histogram of\nWilson's Warbler counts")
+
+dat = dat_all$GRJA
+hist(dat, breaks = 0:(max(dat) + 1) - 0.5, main = "Histogram of\nGray Jay counts")
+
+
+#Wilson’s Warbler Sum of Log-Likelihoods
+sum(log(dpois(x = dat_all$WIWA, lambda = 1.0)))
+
+```
+################################################################################
+
+QUESTIONS
+
+
+```{r}
+#Q1
+
+wiwa_counts = c(2, 6)
+sum(log(dpois(x = wiwa_counts, lambda = 4.00)))
+
+
+#Q2
+dat2 = dat_all$WIWR
+summary(dat2)
+
+hist(dat2, breaks = 0:(max(dat2) + 1) - 0.5, main = "Histogram of\nWilson's Warbler counts")
+sum(log(dpois(x = dat_all$WIWR, lambda = 1.46)))
+
+#Q3
+sum(log(dbinom(dat_all$WIWR, 1046, 0.001)))
+```
+

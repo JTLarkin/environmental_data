@@ -1,0 +1,29 @@
+---
+title: "In-Class Data File Practice"
+author: "JT Larkin"
+date: "9/21/2021"
+output: pdf_document
+---
+
+
+```{r}
+dat_catrate = read.csv(here("data/catrate.csv"))
+dat_delomys = read.csv(here("data/delomys.csv"))
+dat_rope = read.csv(here("data/rope.csv"))
+
+
+head(dat_catrate)
+head(dat_delomys)
+head(dat_rope)
+
+
+
+dat_catrate #13 rows, 4 columns
+dat_delomys #1,585 rows, 10 columns
+dat_rope #121 rows, 7 columns
+
+
+plot(body_length ~ body_mass, data = dat_delomys, xlab = "Body Mass", ylab = "Body Length", main = "Body Mass vs. Body Length Scatterplot\n JT Larkin", col= "red")
+
+```
+

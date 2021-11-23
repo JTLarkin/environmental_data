@@ -1,0 +1,70 @@
+---
+title: "In-Class Data Exploration 2"
+author: "JT Larkin"
+date: "9/16/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#INSTALL
+
+install.packages("palmerpenguins")
+install.packages("here")
+
+require(palmerpenguins)
+require(here)
+
+#PREPARE DATASET
+
+penguins
+class(penguins)
+
+
+penguins = data.frame(penguins)
+
+
+
+#DATA EXPLORATION
+  #NUMERICAL EXPLORATION
+    #MEAN
+
+mean(penguins$body_mass_g)
+
+head(penguins$body_mass_g)
+
+mean(penguins$body_mass_g, na.rm = TRUE)
+
+
+
+summary(penguins)
+
+
+
+
+    #GRAPHICAL EXPLORATION
+
+#BOXPLOT
+
+boxplot(penguins$bill_depth_mm)
+
+boxplot(bill_depth_mm ~ sex, data = penguins)
+
+
+par(mfrow = c(1, 2))
+boxplot(penguins$bill_depth_mm)
+boxplot(bill_depth_mm ~ sex, data = penguins)
+
+
+#COPLOT
+coplot(body_mass_g ~ bill_depth_mm | sex, data = penguins)
+
+
+
+
+
+
+```

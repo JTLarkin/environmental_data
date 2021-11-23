@@ -1,0 +1,140 @@
+---
+title: 'Lab 1: R Fundamentals 1'
+author: "JT Larkin"
+subtitle: "Partners: Ethan Rutledge"
+date: "9/9/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+c(1, 2, 3)
+
+"c(1, 2, 3)"
+
+```
+
+1. Explain why the outputs of the two lines are different?
+
+  *	It is seeing c(1,2,3) as numeric, where as "c(1,2,3)" is seen as text.
+
+
+```{r}
+c_1 = c(1, 2, 3)
+c_2 = "c(1, 2, 3)"
+```
+
+2. Is c_1 a variable, or a function?
+
+  *	Variable. We are using the combine function (c()) to give the variable a value.
+
+3. Is c_2 a variable, or a function?
+
+  *	c_2 is also a variable. We are assigning the character value "c(1, 2, 3)" to it.
+
+4. If c_1 and c_2 have different values, why?
+
+  * Yes, they have different values. This is because c_1 is numeric and c_2 is a character.
+
+
+```{r}
+my_vec=c(1:3)
+mat_1 = matrix(my_vec)
+mat_1
+
+mat_1[[3]]
+```
+
+
+5. What are the dimensions of the matrix (i.e. how many rows and columns)?
+
+  * It is a matrix with one column and 3 rows
+
+
+6. Write R code to retrieve the element of mat_1 that has a value of 3.
+
+  * mat_1[[3]]
+
+
+```{r}
+mat_2= matrix(my_vec, nrow= 2, ncol=3)
+mat_2
+
+mat_3= matrix(my_vec, nrow= 3, ncol=2)
+mat_3
+
+mat_4= matrix(my_vec, nrow=2, ncol=4)
+mat_4
+```
+
+
+7. Paste the code you used to create mat_2.
+
+  * mat_2= matrix(my_vec, nrow= 2, ncol=3)
+
+8. Paste the code you used to create mat_3.
+
+  * mat_3= matrix(my_vec, nrow= 3, ncol=2)
+
+9. Did R use rows or columns to recycle the values in my_vec?
+
+  * Columns
+
+10. Create a matrix, mat_4, with a number of elements that is not a multiple of 3 and paste the code into the editor.
+
+  * mat_4= matrix(my_vec, nrow=2, ncol=4)
+
+11. How did R handle the recycling of values of my_vec in mat_4?
+
+  * It created the matrix, but returned a warning code: "data length [3] is not a sub-multiple or multiple of the number of rows [2]".It only used the numbers 1 and 2 on the 3rd recycle.
+
+
+```{r}
+my_list_1= list(two=5.2, one="five point two",three=0:5)
+my_list_1
+
+
+my_list_1[[1]]
+my_list_1[[as.numeric("1")]]
+my_list_1[["1"]]
+my_list_1[["one"]]
+my_list_1$one
+my_list_1$"one"
+#my_list_1$1
+my_list_1$"1"
+
+```
+
+
+12. For each of the 8 lines, answer the following: A. Did the line return a 1: value, 2: error, or 3: NULL B. If it did not return an error, what type of subsetting operation was used? C. If it did not 
+return an error, explain how R chose which element to retrieve.
+
+  * 1- a) value; b) [[]]; c) It "grabbed" the first element in the list. 
+  
+  * 2- a) value; b) [[]]; c) It "grabbed" the first element in the list and displayed it as the numeric value.
+  
+  * 3- a) NULL; b) [[]]; c) It is looking for something labeled "1" (text), which does not exist
+  
+  * 4- a) value; b) [[]]; c) It "grabbed" the element that we labeled "one" and returned its value
+  
+  * 5- a) value; b) $; c) It "grabbed" the element labeled "one"
+
+  * 6- a) value; b) $; c) This also "grabbed" the value labeled "one"
+
+  * 7- a) Error; b) $; c) N/A
+
+  * 8- a) Null; b) $; c) It is looking for something labeled "1" (text), which does not exist
+
+
+
+13. Identify which lines produced output "five point two" and explain why.
+
+  * 4,5, and 6. All three of these lines are searching for the element in our vector we named "one" which was "five point two". 
+
+14. Identify which lines produced NULL output and explain why.
+
+  * 4 and 8. R was looking for something labeled "1" (text), which does not exist in the vector my_list_1

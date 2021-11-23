@@ -1,0 +1,226 @@
+---
+title: 'Lab 3: Data Exploration and Deterministic Functions'
+author: "JT Larkin (Partners: Alex Fink, Ethan Rutledge, Sonja Glasser)"
+date: "9/20/2021"
+output: pdf_document
+---
+
+
+```{r}
+  #install.packages("psych")
+
+
+require(psych)
+require(here)
+
+#Part of the psych package
+pairs.panels(iris)
+```
+
+```{r}
+#Load data
+
+dat_bird = data.frame(read.csv(here("data/bird.sta.csv")))
+dat_habitat = data.frame(read.csv(here("data/hab.sta.csv")))
+
+#view some of the data
+
+#dat_bird has 1,046 rows and 84 columns
+  #head(dat_bird) 
+
+#dat_habitat has 1,046 rows and 24 columns
+  #head(dat_habitat)
+
+```
+
+
+```{r}
+#Merge data
+
+dat_all = merge (dat_bird, dat_habitat)
+
+#plotting merged data
+
+plot(ba.tot ~ elev, data = dat_all)
+
+
+
+
+
+#Converting bird data to pres/abs
+
+sample(dat_all$CEWA, 100)
+
+
+cewa_vec = dat_all$CEWA > 0
+cewa_present_absent = as.numeric(cewa_vec > 0)
+
+plot(x = dat_all$elev, y = cewa_present_absent)
+
+
+
+
+
+#Black box info for now. Will learn more later on in semester 
+
+
+# Function to calculate the logistic parameter a given the slope and midpoint
+get_logistic_param_a = function(slope, midpoint)
+{
+  b = slope / 4
+  return (-midpoint * (slope / 4))
+}
+
+# Function to calculate the logistic parameter b given the slope
+get_logistic_param_b = function(slope)
+{
+  return (slope / 4)
+}
+
+
+# Calculate the value of the logistic function at x, given the parameters a and b.
+logistic = function(x, a, b)
+{
+  val = exp(a + b * x)
+  return(val / (1 + val))
+}
+
+# Calculate the value of the logistic function at x, given a slope and midpoint.
+logistic_midpoint_slope = function(x, midpoint, slope)
+{
+  b = get_logistic_param_b(slope)
+  a = get_logistic_param_a(slope, midpoint)
+  return(logistic(x, a, b))
+}
+
+
+
+
+
+#Plotting logistic curves
+
+#FIT 1
+
+plot(x = dat_all$elev, y = cewa_present_absent)
+curve(logistic_midpoint_slope(x, midpoint = 400, slope = 0.1), add = TRUE)
+
+
+#FIT 2
+
+plot(x = dat_all$elev, y = cewa_present_absent)
+curve(logistic_midpoint_slope(x, midpoint = 400, slope = -0.1), add = TRUE)
+
+#FIT 3
+
+plot(x = dat_all$elev, y = cewa_present_absent)
+curve(logistic_midpoint_slope(x, midpoint = 400, slope = -0.05), add = TRUE)
+
+
+# A couple of arguments to plot() and curve() might be of interest:
+# cex: this controls the size of the plotting character. Default is 1.
+# pch: this controls the shape of the plotting character. Default is 1. Code 16 plots a solid point.
+# col: this controls the color of the plotting character. Default is 1, corresponding to black.
+# adjustcolor(): It allows you to make points semi-transparent. For example, I use the col argument and adjustcolor() inside a call to plot().
+
+```
+
+
+
+```{r}
+#ASSIGNMENT/DELIVERABLES WITH SAVING AN IMAGE OF THE PLOT
+#For the paris plot we are taking a subset of the dat_all dataset using the []. Then we are selecting the columns elev, slope, aspect, and basal area using the [,c("elev", "slope", "aspect", "ba.tot")] rather than rows that would be [c("xxx"),].
+
+png(filename = here("plots", "Terrain_pairspanel_lab3.png"), 
+    width = 1600, 
+    height = 1400)
+
+pairs.panels(dat_all[, c("elev", "slope", "aspect", "ba.tot")])
+
+dev.off()
+
+
+# Common Yellowthroat
+
+coye_vec = dat_all$COYE > 0
+coye_present_absent = as.numeric(coye_vec > 0)
+
+
+plot(x = dat_all$ba.tot, 
+     y = coye_present_absent, 
+     xlab = "Total Basal Area (m^2/ha)", 
+     ylab = "Presence/Absence of COYE", 
+     main = "Presence/Absence of Common Yellowthroat vs. Toatl Basal Area", 
+     col =  "orange")
+curve(logistic_midpoint_slope(x, midpoint = 100, slope = -0.5), add = TRUE)
+
+
+
+#Brown Creeper
+
+brcr_vec = dat_all$BRCR > 0
+brcr_present_absent = as.numeric(brcr_vec > 0)
+
+plot(x = dat_all$ba.tot, 
+     y = brcr_present_absent, 
+     xlab = "Total Basal Area (m^2/ha)", 
+     ylab = "Presence/Absence of BRCR", 
+     main = "Presence/Absence of Brown Creepers vs. Total Basal Area", 
+     col =  "blue")
+curve(logistic_midpoint_slope(x, midpoint = 100, slope = -1), add = TRUE)
+
+
+
+#Gray Jays
+sum(dat_all$GRJA)
+grja_vec = dat_all$GRJA > 0
+grja_present_absent = as.numeric(grja_vec > 0)
+
+sum(grja_present_absent)
+```
+
+
+####ASSIGNMENT QUESTIONS####
+
+
+1. Basal area a measurement of the density of trees in a stand. In our dataset it is measured in meters squared per hectare (m^2/ha).
+
+2. 
+```{r}
+pairs.panels(dat_all[, c("elev", "slope", "aspect", "ba.tot")])
+```
+
+3. 
+```{r}
+plot(x = dat_all$ba.tot, 
+     y = coye_present_absent, 
+     xlab = "Total Basal Area (m^2/ha)", 
+     ylab = "Presence/Absence of COYE", 
+     main = "Presence/Absence of Common Yellowthroat vs. Total Basal Area", 
+     pch = 16,
+     col =  adjustcolor("orange", alpha.f = 0.2))
+curve(logistic_midpoint_slope(x, midpoint = 50, slope = -0.5), add = TRUE)
+```
+
+4. There are very few sites that had common yellowthroat.However, sites where COYE were present had lower basal areas (n=3) which is consistent with the species biology.I plotted a negative logistic model for this species due to the known species biology and the data points, but I could also argue that a positive curve would fit the data better if I was going off of the data alone.Ultimately, I do not think that my logistic model is a good fit for the data, but I would expect this type of curve where the species is more prevalent (i.e. PA).
+
+
+
+5. 
+```{r}
+plot(x = dat_all$ba.tot, 
+     y = brcr_present_absent, 
+     xlab = "Total Basal Area (m^2/ha)", 
+     ylab = "Presence/Absence of BRCR", 
+     main = "Presence/Absence of Brown Creepers vs. Total Basal Area", 
+     pch = 16,
+     col =  adjustcolor("blue", alpha.f = 0.2))
+curve(logistic_midpoint_slope(x, midpoint = 100, slope = -1), add = TRUE)
+```
+
+6. There are roughly an equivalent number of sites where brown creepers are present and absent. However, most of the sites sampled are less than 100 m^2/ha. It would be interesting and useful to see the trend when more sites with a higher basal area are sampled. My logistic model does not seem like a great fit for the data. Since there were roughly the same amount of sites where BRCR were present and absent in the lower BA range, it was difficult to decide whether I should have a positive or negative slope for my model.
+
+
+7. 181 Gray Jays were observed across all of the sampling locations.
+8. "sum(dat_all$GRJA)"
+9. Gray Jays were observed at 110 sampling sites. 
+10. "sum(grja_present_absent)" 

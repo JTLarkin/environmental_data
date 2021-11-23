@@ -1,0 +1,45 @@
+---
+title: "Random"
+author: "JT Larkin"
+date: "10/20/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_penguin_data, echo = TRUE, eval = TRUE}
+require(palmerpenguins)
+head(penguins)
+```
+
+```{r simple_pariplot, fig.width = 4, fig.asp = 1/1.15, eval = FALSE}
+plot(penguins[,3:5])
+```
+
+```{r simple_pariplot2, fig.width = 4, fig.asp = 1/1.15, echo= FALSE}
+plot(penguins[,3:5])
+```
+
+Tabset only works for HTML
+
+
+# Tabset Example {.tabset .tabset-pills}
+
+## Tab 1
+YO
+
+## Tab 2
+BRO
+
+## Tab 3
+THIS
+
+## Tab 4
+IS
+
+## Tab 5
+Sweet

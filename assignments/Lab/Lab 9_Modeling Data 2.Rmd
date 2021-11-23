@@ -1,0 +1,291 @@
+---
+title: "Modeling Data 2"
+author: "JT Larkin"
+date: "11/10/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+require(here)
+catrate = read.csv(here("data", "catrate.csv"))
+head(catrate)
+```
+
+```{r include=FALSE}
+# Binomial Test for Proportions
+
+## Reproductive Success and Failure
+
+n_success = sum(catrate$success)
+n_years = sum(catrate$years)
+binom.test(n_success, n_years)
+
+## Reproductive Catastrophe and Late Filling
+
+binom.test(n_success, n_years, p = 5/7) 
+```
+```{r include=FALSE}
+# Two Sample Tests
+
+## F-distribution Example: Vegetation Data
+
+veg = read.csv(here("data", "vegdata.csv"))
+head(veg)
+
+boxplot(pine ~ treatment, data = veg)
+
+## Variance Test
+
+var.test(
+  pine ~ treatment,
+  data = veg,
+  subset = treatment %in% c('control','clipped'))
+
+## F-tests Assumes Normality
+
+shapiro.test(veg$pine[veg$treatment=="control"])
+
+shapiro.test(veg$pine[veg$treatment=="clipped"])
+
+```
+
+```{r include=FALSE}
+# Non-parametric Variance Test
+
+fligner.test(
+  pine ~ treatment,
+  data = veg,
+  subset = treatment %in% c('control','clipped'))
+
+bartlett.test(pine ~ treatment, data=veg)
+
+
+fligner.test(pine ~ treatment, data = veg)
+
+
+```
+
+```{r include=FALSE}
+# Comparing 2 sample means
+
+## T-test
+
+t.test(pine~treatment,data=veg,subset=treatment %in% c('control','clipped'), conf.int=TRUE)
+
+
+## Wilcox test
+
+wilcox.test(pine~treatment,data=veg,subset=treatment %in% c('control','clipped'), conf.int=TRUE)
+
+
+```
+
+```{r include=FALSE}
+# Tests for paired samples
+
+control = veg$pine[veg$treatment=='control']
+clipped = veg$pine[veg$treatment=='clipped']
+
+
+t.test(control, clipped, paired=TRUE)
+wilcox.test(control, clipped, paired=TRUE)
+
+```
+
+
+```{r include= FALSE}
+# Correlation
+
+disp = read.csv(here("data", "dispersal.csv"))
+disp
+
+plot(disp$disp.rate.ftb, disp$disp.rate.eb)
+
+cor.test(
+  disp$disp.rate.ftb,
+  disp$disp.rate.eb,
+  use='complete.obs')
+
+cor.test(
+  disp$disp.rate.ftb,
+  disp$disp.rate.eb,
+  use='complete.obs',
+  method='spearman')
+
+
+
+# Comparing two distributions
+
+plot(
+  ecdf(disp$disp.rate.ftb),
+  verticals=TRUE)
+
+
+
+plot(
+  ecdf(disp$disp.rate.ftb),
+  verticals=TRUE)
+plot(
+  ecdf(disp$disp.rate.eb),
+  verticals=TRUE,
+  lty=3,
+  add=TRUE)
+
+
+
+ks.test(disp$disp.rate.ftb,disp$disp.rate.eb)
+
+prop.test(c(4,16),c(40,250))
+
+
+```
+
+```{r include=FALSE}
+# Contingency: Chi-square test
+
+owls = matrix(c(16, 9, 4, 11), nrow=2)
+rownames(owls) = c("present", "absent")
+colnames(owls) = c("old", "young")
+chisq.test(owls)
+
+
+## Fishers exact test
+
+fisher.test(owls)
+
+
+
+## Bird hab data
+
+birds   = read.csv(here("data", "bird.sta.csv"))
+hab     = read.csv(here("data", "hab.sta.csv"))
+birdhab = merge(birds, hab, by=c("basin", "sub", "sta"))
+
+# Create a contingency table for edge/interior and brown creeper presence/absence
+table(birdhab$s.edge, birdhab$BRCR > 0)
+
+# set the presence to be in the first column
+br_creeper_table = table(birdhab$s.edge, birdhab$BRCR > 0)[, 2:1]
+chisq.test(br_creeper_table)
+
+```
+
+
+################################################################################
+
+ASSIGNMENT
+
+1. There is no relationship between brown creeper presence/absence and edge/interior habitats.
+
+2. I think that brown creepers show a habitat preference. Our p-value from the chi squared test was very significant. Thus, the null hypothesis (no relationship) is rejected.  
+
+```{r}
+chisq.test(br_creeper_table)
+```
+
+3. 
+
+```{r}
+require(palmerpenguins)
+fit_species = 
+  lm(
+    formula = body_mass_g ~ species,
+    data = penguins)
+```
+
+4. 
+```{r}
+fit_sex= 
+  lm(
+    formula = body_mass_g ~ sex,
+    data = penguins)
+```
+
+5. 
+```{r}
+fit_both = 
+  lm(
+    formula = body_mass_g ~ species * sex,
+    data = penguins)
+```
+
+6. 
+
+```{r}
+levels(penguins$species)
+
+boxplot(body_mass_g ~ species,
+    data = penguins, 
+  main = "Plot of Body Mass By Penguin Species", 
+   xlab = "",
+  ylab = "Body Mass (g)",
+  names = c("Adelie", "Chinstrap", "Gentoo"))
+```
+
+7. 
+```{r}
+levels(penguins$sex)
+
+boxplot(body_mass_g ~ sex,
+    data = penguins, 
+  main = "Plot of Body Mass By Penguin Sex",
+   xlab = "",
+  ylab = "Body Mass (g)",
+  names = c("Female", "Male"))
+```
+
+8. 
+```{r}
+boxplot(body_mass_g ~ species * sex,
+    data = penguins, 
+  main = "Plot of Body Mass By Penguin Species and Sex",
+  xlab = "",
+  ylab = "Body Mass (g)",
+  las = 2,
+  names = c("Adelie \nFemale", "Adelie \nMale", "Chinstrap \nFemale",  
+            "Chinstrap \nMale","Gentoo \nFemale",  "Gentoo \nMale"))
+```
+
+
+9. I would say that the fit_species may have a problem fulfilling that homogeneity assumption.The variability between the species body mass's is pretty clear in the boxplot we created in question 6.
+
+10. There is no difference in variances between groups. 
+
+11. p-value = 0.0501
+
+```{r}
+bartlett.test(body_mass_g ~ species, data = penguins)
+```
+
+12. p-value = 0.0319
+```{r}
+bartlett.test(body_mass_g ~ sex, data = penguins)
+```
+
+
+13. p-value = 0.1741
+```{r}
+dat_groups = aggregate(
+  body_mass_g ~ species * sex,
+  data = penguins,
+  FUN = c)
+str(dat_groups)
+
+
+bartlett.test(dat_groups$body_mass_g)
+
+```
+
+14. Since our p-value is not significant for the two-way model, we will assert the null hypothesis that there is no difference in variance between groups.Thus, we will not have an issue with heterogeneity in the two-way model. The p-value from the Bartlett test on the sex model is significant. Thus, we will assert the alternative hypothesis that states there is a difference in variance between sexes and we will have an issue with heterogeneity. Finally, the p-value from the Bartlett test for the species model had a p-value that is right on the border of significance (p-value = 0.05001). Thus, drawing a conclusion on whether this model will have issues with heterogeneity is difficult.
+
+
+
+
+
+
+
+

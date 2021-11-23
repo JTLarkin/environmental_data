@@ -1,0 +1,55 @@
+---
+title: "In-Class Probability Calculations and Confidence Intervals"
+author: "JT Larkin"
+date: "10/14/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+dpois(x = 7, lambda = 10.4)
+
+
+## 4 = number of times we want success. Given in the problem
+## 6 = number of patches
+## 0.66 or 2/3 = probability of having success. 4/6 or 2/3 or 0.66
+
+dbinom(4, 6, 0.66)
+
+
+
+## 0 = number of times we want success. Given in the problem
+## 6 = number of patches
+## 0.66 or 2/3 = probability of having success. From observations.
+
+dbinom(0,6, 0.66)
+
+
+
+#Cumulative probability: The p-functions
+
+ppois(q = 7, lambda = 10.4)
+
+#Law of Total Probability and Complementary Events
+
+1 - ppois(q = 7, lambda = 10.4)
+
+
+
+## 4 = becasue its 4 or more. so we want to include 4
+## 6 = number of patches
+## 0.66 or 2/3 = probability of having success. From observations.
+
+pbinom(4, 6, 0.66)
+
+
+## 3 = becasue we need to calculate 3 or fewer. which will then be used to calculate 4 or more
+## 6 = number of patches
+## 0.66 or 2/3 = probability of having success. From observations.
+
+1 - pbinom(3, 6, 0.66)
+```
+
