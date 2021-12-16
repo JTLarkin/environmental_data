@@ -1,0 +1,368 @@
+---
+title: "final_R_reference"
+author: "JT Larkin"
+date: "12/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Link to this Reference Guide:
+ 
+[Final Project: R Reference Guide](final_R_reference.html)
+
+
+
+# R Reference Guide {.tabset .tabset-pills}
+
+## Loading Data and Packages
+The library() and require() functions are used to load datasets and packages that are already installed (to install pacakages use the function install.packages() with the desired package in "" inside the parentheses). To show how the library() and require() are used I will demonstrate how to load the here and palmerpenguins packages.
+
+* The here package is used to locate and save files easily and will be discussed later in this section. To use this function, you must have an R-project in the folder you want to open files in or referencing in the here function. Additionally, the each piece of the path your are referencing must be in its own "".
+
+* The palmerpenguins package loads a dataset that has measurements on several penguin species. 
+
+The following code is an example of how to use both functions. As you will see, the library() function returns a message letting us know that the package was loaded. Whereas, require() does not. 
+```{r}
+library(palmerpenguins)
+require(palmerpenguins)
+```
+
+```{r}
+library(here)
+require(here)
+```
+
+
+### Loading Ginkgo data
+For a class, Analysis of Environmental Data, I took in the Fall of 2021, my classmates and I collected various measurements on male and female Ginko leaves from trees on the UMass-Amherst campus. I will use the data we collected as a example for how to create a data.frame called "ginkgo" using the functions here() and read.csv(). 
+
+Note: 
+* My R project is saved in my folder where I will be working, it is called "environmental_data.Rproj". Also, inside of this folder is another folder, "data", that contains my data files which are saved as csv's. The file I will retrieve is called "ginkgo_data_2021.csv". 
+
+```{r}
+ginkgo = data.frame(read.csv(here("data", "ginkgo_data_2021.csv")))
+```
+Note: 
+
+* The quote placement, which was mentioned above, in the here() function
+* The file extension added to the file name
+
+The the read.csv() function is loading in "ginkgo_data_2021.csv". The data.frame() function is making our "ginkgo_data_2021.csv" a dataframe. We named this dataframe "ginkgo". 
+
+To see what a we created we can load the ginkgo dataframe.The function head() shows us the first few rows of data rather than the entire dataframe.
+```{r}
+head(ginkgo)
+```
+
+
+## Data Structures
+
+### c() Function
+
+The function c() combines or concatenates its arguments into a vector (a 1-dimensional data structure consisting of 1 or more elements).
+
+* All of the elements must be of the same type.
+    * I can’t combine character and numeric types in the same call to c()
+
+Here’s two examples using numeric and character data types:
+
+```{r}
+## Create a vector of numbers:
+num_vec  = c(1, 4, 8, 9, 13, 17)
+
+## Create a vector of characters:
+char_vec = c("a", "fish", "data is cool", "birds")
+```
+
+I can show the contents of a vector by typing the name of the vector, or using the print() function.
+
+```{r}
+## Typing the name of the vector into the console prints the contents
+num_vec
+```
+
+```{r}
+## The print() function accomplishes the same task:
+print(char_vec)
+```
+
+### length() Function
+
+The function length() identifies the number of elements in a vector. For example, if we want to identify the number of elements in the vector "num_vec" that we created above, we can use the following code:
+
+```{r}
+length(num_vec)
+```
+Note, that the length() function also works on a vector of characters.
+```{r}
+length(char_vec)
+```
+### matrix() Function
+
+The function matrix() will turn vectors into a matrix. For example, if we wanted to turn our vectors "num_vec" or "char_vec" into a matrix we could use the following code:
+
+```{r}
+matrix(num_vec, nrow = 3, ncol = 2)
+```
+
+Here R made the "num_vec" vector into a matrix that has 3 rows and 2 columns.
+
+* Note that here are arguments that must be used in this function
+    * First is the vector that you would like to make a matrix ("num_vec")
+    * "nrow = " defines the number of rows
+    * "ncol = " defines the number of columns
+ 
+If we define more rows and columns than what our vector contains, R will start to recycle the elements in our vector. In the example below we can see how R recycles the elements in the vector "num_vec". Note that I assigned this matrix the name "dat" for future use.
+```{r}
+dat = matrix(num_vec, nrow = 8, ncol = 3)
+dat
+```
+
+
+
+Now that we have created a matrix, we may want to create a dataframe. Dataframes are the most common way to store data in R. This is the data structure used for most analyses. To create a dataframe, we will use the function data.frame(). Below I will make the matrix we named "dat" into a dataframe. I will name this dataframe "dat_1". To ensure this worked we can inspect "dat_1" by just typing "dat_1".
+
+
+```{r}
+dat_1 = data.frame(dat)
+dat_1
+```
+
+Above we can see that "dat_1" has 3 columns of data, X1, X2, and X3. Additionally, we can tell that each column has 8 rows of data. Rather than counting, we can have R tell us the number of rows and columns using the nrow() and ncol() functions. nrow() will tell us the number of rows and ncol() will tell us the number of columns, as the names imply.
+
+```{r}
+nrow(dat_1)
+```
+```{r}
+ncol(dat_1)
+```
+To quickly get both the number of columns and rows in a dataframe, we can use the function dim(). Note that the number of rows is listed first and the columns is second!
+
+```{r}
+dim(dat_1)
+```
+
+## Subsetting
+Next, we will discuss how to retrive subsets of a dataframe. For these examples I will use the Ginkgo data that was loaded in the "Loading Data and Packages" section of the walkthrough. We can use subsetting to select specific columns, rows, or even specific cells. To do this we use the dataframe name followed by square brackets [ ]. Inside of the brackets, we use the following format: [Row # ,  Column #]. If we would like to select only the first row of the Ginkgo dataframe, which named ginkgo, we can use the following code.
+
+
+```{r}
+ginkgo[1,]
+```
+
+Note that there wasn't a number in the column position as we wanted the entire first row. If we would like to select the entire 3rd column of the ginkgo dataframe, we can use the following code. Note that the space for the column information is empty as we want the entire column.
+
+```{r}
+ginkgo[,3]
+```
+
+If we would like to select only the data from row 2, column 3 we can use the following code. 
+
+```{r}
+ginkgo[2,3]
+```
+We can double check this value by looking at the head of the ginkgo dataset. It matches, bingo!
+
+```{r}
+head(ginkgo)
+```
+
+Finally, I will discuss the use of the subset() function. For this, I will use the penguins dataset from the package "palmerpenguins". This dataset contains measurements of 3 species of penguins. For this example, we will extract the data for only the species Adelie. The first argument in the subset function is the dataframe, thus for us it is penguins. The second argument is what we want to extract and where it is located in the dataframe. For us, the species names are located in the "species" column. Note the use of the double equal sign (==) and the name in quotes (""). This tells the function that we want only the rows that have the word Adelie in them. We will assign this subset the name "adelie". 
+
+```{r}
+adelie = subset(penguins, species == "Adelie")
+```
+
+Now, we may only be interested in the male Adelie penguins. We can take the male subset of the dataframe we create above. We can name it "mal_adel".
+
+```{r}
+mal_adel = subset(adelie, sex == "male")
+mal_adel
+```
+
+This created a dataframe that contains entries from only male Adelie penguins.
+
+
+## Numerical Data Exploration
+
+Now that we have the dataframe "mal_adel" (created in the subsetting section), we may want to preform some numerical data exploration. We can get a very broad view of the dataframe by using the summary function.
+
+```{r}
+summary(mal_adel)
+```
+
+From this we can see the number of samples (73), the number of samples from each island, and some general summaries (e.g. mean, max, min, etc.) for all of the variables in one table. If we want R to explicitly tell us the mean for a specific variable, we can use the mean() function. For example, if we want the mean bill length of male Adelie penguins (bill_length_mm) we can run the following code:
+
+```{r}
+mean(mal_adel$bill_length_mm)
+```
+
+Additionally, if we would like to know the standard deviation of the bill length of male Adelie penguins, we can use the sd() function.
+
+```{r}
+sd(mal_adel$bill_length_mm)
+```
+
+
+## Graphical Data Exploration
+
+To discuss graphical data exploration I will be using the ginkgo data. First, I will create a scatterplot of max leaf depth (x) and max leaf width (y). To do this I will use the function plot(). The primary arguments in the plot() function is the y variable ~ x variable and then the data. See the code below:
+
+```{r}
+plot(max_width ~ max_depth, ginkgo)
+```
+
+
+Now, we can customize our plot using the following arguments:
+
+* col = changes the color of the points in the plot. You can find a list of colors online at : <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>
+
+* pch = changes the point type. For example, we can have triagles instead of circles. FInd all of the point * types at <https://www.r-bloggers.com/2021/06/r-plot-pch-symbols-different-point-shapes-in-r/>
+
+* cex = number indicating the amount by which plotting text and symbols should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller
+
+* main = creates the main label of the figure. Must be in quotes "". Note that using a \n will send the text to a new line. For example, "We can use this for \na really really long tile". Not there is no space between the \n and the text!
+
+* xlab = creates the x-axis label of the figure. Must be in quotes "". Note that using a \n will send the text to a new line. For example, "We can use this for \na really really long tile". Not there is no space between the \n and the text!
+
+* ylab = creates the y-axis label of the figure. Must be in quotes "". Note that using a \n will send the text to a new line. For example, "We can use this for \na really really long tile". Not there is no space between the \n and the text!
+
+* xlim = sets the cut off value for the x-axis. Note that we must use c(beginning value, end value)
+
+* ylim = sets the cut off value for the y-axis. Note that we must use c(beginning value, end value)
+
+I will create a plot using all of arguments listed above.
+
+```{r}
+plot(max_width ~ max_depth, ginkgo,
+     xlab = "Max Leaf Depth",
+     ylab = "Max Leaf Width",
+     main = "Ginkgo Leaf Depth vs. Width",
+     col = "blue",
+     pch = 24,
+     cex = 1.5,
+     xlim = c(0,100),
+     ylim = c(0,100))
+```
+
+Next, we will use the histogram() function to create a histogram of Adelie penguin flipper lengths (flipper_length_mm). Remember, in the subsetting section we created a dataframe called "adelie" which contains various measurements from male and female Adelie penguins. Note how I use the break argument to tell R when I want breaks in the histogram. Also, remember that many of the arguments from the plot function, such as the axis labels and color change applies to this function as well!
+
+```{r}
+hist(adelie$flipper_length_mm,
+     xlab = "Flipper Length (mm)",
+     ylab = "Frequency",
+     main = "Adelie Penguin Flipper Length",
+     col = "blue",
+     breaks = c(170, 173,  175, 178, 180, 183, 185, 188, 190, 193, 195, 198, 200, 203, 205, 208, 210))
+```
+
+
+The default breaks is every 5 starting at 170 and going up to 210.You can see we made the breaks different here. Note how the break argument uses c()!
+
+The final graphical data analysis example will be the use of the boxlot() function. To demonstrate the use of this function we will use the ginkgo data. We will make a simple and conditional boxplot. First, we will discuss the simple boxplot. 
+
+```{r}
+boxplot(ginkgo$petiole_length,
+        xlab = "Ginkgo",
+        ylab = "Petiole Length (mm)",
+        col = "blue",
+        pch = 24)
+```
+
+As you can see this makes a simple boxplot of ginkgo leaf petiole lengths. Note the use of the x and y label, point type, and the color arguments.
+
+A conditional box plot is when we make a box plot for a continuous variable (as always), but it is conditioned on a categorical variable. For example, we will create a box plot for petiole length again, but this time it will be conditioned on if seeds were present. Note that the continuous variable (y) is first and then there is a ~ and the categorical variable that the plots are conditioned upon. Following that the data you are working on
+
+```{r}
+boxplot(petiole_length ~ seeds_present, data = ginkgo,
+         xlab = "",
+        ylab = "Petiole Length (mm)",
+        col = "blue",
+        pch = 24)
+```
+
+Finally, I will demonstrate how to get multiple figures in the same frame. We do this using the par() function. For this I will create 4 different boxplots and create a 2x2 frame of the plots. Note that we must highlight all of the code and hit ctrl + Enter for this to work. Also, note the use of mfrow and the c() function. The first number is the number of rows and the second is the number of columns. 
+
+
+```{r}
+par(mfrow = c(2, 2))
+
+boxplot(ginkgo$petiole_length,
+        xlab = "Ginkgo",
+        ylab = "Petiole Length (mm)",
+        col = "blue",
+        pch = 24)
+
+boxplot(ginkgo$max_width,
+        xlab = "Ginkgo",
+        ylab = "Max Width (mm)",
+        col = "green",
+        pch = 24)
+
+boxplot(ginkgo$max_depth,
+        xlab = "Ginkgo",
+        ylab = "Max Depth (mm)",
+        col = "red",
+        pch = 24)
+
+boxplot(ginkgo$notch_depth,
+        xlab = "Ginkgo",
+        ylab = "Notch Depth (mm)",
+        col = "goldenrod",
+        pch = 24)
+```
+
+
+
+## Distribution Functions
+
+### dnorm(), pnorm(), and qnorm()
+
+In this final section we will discuss how to use several distribution functions. First, will be the distribution functions for normally distributed data. These functions are dnorm(), pnorm(), and qnorm(). dnorm() is used to retrieve the probability density for a normal distribution. This is otherwise known as the height of a curve or the frequency of the event occurrence. pnorm() is used to retrieve the distribution function or in other words the probability of an event occurring. pnorm() give us how much data falls to the left of x under the curve. Finally, qnorm() is used to retrieve the how many trials we would need to have a X% chance of the event occuring. There are 3 arguments to these functions x, mean, and standard deviation. The default values for the mean and standard deviation are 0 and 1 respectively. I will use each of these functions below:
+
+```{r}
+dnorm(0, mean = 0, sd = 1)
+```
+So in this case, the height of a normally distributed dataset that has a mean of 0 and a standard deviation of 1 at 0 (center of the histogram) is 0.39. So if an experiment was conducted 100 times, 39% of the time the value was 0. 
+
+
+```{r}
+pnorm(0, 0, 1)
+```
+So this tells us that at the value of 0 (x, first argument) for a dataset that is normally distributed, with a mean of 0 and sd of 1, half of the values (0.5) occurred before 0. Note that we do not need to write mean and standard deviation before the second and 3rd arguments. This is because these are the mean and standard deviation assumed positions.
+
+
+```{r}
+qnorm(.5, 0, 1)
+```
+This is telling us that at a probability of 0.5 (50%), the x value will be 0. We can change this, so we can identify where we have a 95% chance of an event occurring.
+
+```{r}
+qnorm(.95, 0, 1)
+```
+
+
+### dbinom(), pbinom(), and qbinom()
+
+The dbinom(), pbinom(), and qbinom() functions are all similar to the dnorm(), pnorm(), and qnorm() functions! There are 3 arguments to these functions x, n or the number of data, and p or the probability. To explain these functions, I will use a story. For this story assume that there are 20 trials and the probability of a successful trial is 75%. If we want to know what the probability of having 18 successes in our story we can use the dbinom() function. Note that 18 is our x value.
+
+```{r}
+dbinom(18, 20, .75)
+```
+So, there is a 6.7% chance that 18/20 of our trials would be successful. Now if we would like to know what is the likelihood that we would have 18 or less successful trials, we can use the the pbinom() function. So this is everything under the curve to the left of 18.
+
+```{r}
+pbinom(18, 20, .75)
+```
+There is a 97.5% chance of this occurring, which is not super surprising given our probability of success. Now, say that we wanted to know how many trials we would need to have a 97.5% chance of successes we could use the qbinom (very similar concept to qnorm!), we could use the following code. Note how I used the probability the was the result from above so that I could double check the result.
+
+
+```{r}
+qbinom(.975, 20, .75)
+```
+So for there to be a probability of 97.5% we would need to have 18 trials.
+
+
+

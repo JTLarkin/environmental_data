@@ -131,12 +131,14 @@ summary(fit_both)
 ```
 
 
-8. 3733.088 grams
+8. 3527.206 grams
 ```{r}
 penguins = penguins
-fem_chin = subset(penguins, species == "Chinstrap")$body_mass_g
+fem_chin = aggregate(
+  body_mass_g ~ species * sex,
+  data = penguins, FUN = mean)
+
 fem_chin
-mean(fem_chin)
 ```
 
 

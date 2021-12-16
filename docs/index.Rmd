@@ -10,3 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Welcome to JT's class page!
+
+Link to my R Reference Guide:
+[Final Project: R Reference Guide](final_R_reference.html)

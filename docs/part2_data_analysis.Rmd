@@ -1,0 +1,233 @@
+---
+title: 'Part2: Data Analysis'
+author: "JT Larkin (Partners: Ethan Rutledge and Alex Fink)"
+date: "12/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Data Exploration
+
+
+
+
+
+
+```{r}
+require(here)
+del = read.csv(here("data", "delomys.csv"))
+#del
+
+summary(del$body_mass)
+summary(del$body_length)
+
+shapiro.test(del$body_mass) #significant, not normally distributed
+shapiro.test(del$body_length) #significant, not normally distributed
+```
+
+```{r}
+plot(body_mass ~ body_length, del,
+     xlab = "Body Length (mm)",
+     ylab = "Body Mass (g)",
+     main = "Body Mass vs. Body Length",
+     col = "blue")
+```
+```{r}
+hist(del$body_length,
+     xlab = "Body Length (mm)",
+     ylab = "Frequency",
+     main = "Histogram of Body Length",
+     col = "blue")
+```
+
+```{r}
+hist(del$body_mass,
+     xlab = "Body Mass (g))",
+     ylab = "Frequency",
+     main = "Histogram of Body Mass",
+     col = "orange")
+```
+
+```{r}
+
+boxplot(body_mass ~ binomial, data = del,
+        xlab = "",
+        ylab = "Body Mass (g)",
+        col = c("blue", "green"))
+
+```
+
+```{r}
+boxplot(body_mass ~ sex, data = del,
+        xlab = "",
+        ylab = "Body Mass (g)",
+        col = c("blue", "green"))
+```
+
+```{r}
+boxplot(body_mass ~ binomial + sex, data = del,
+        xlab = "",
+        ylab = "Body Mass (g)",
+        col = c("blue", "green"),
+        las = 1,
+  names = c("D. dorsalis \nFemale", "Delomys sublineatus \nFemale", "D. dorsalis \nMale", "D. sublineatus \nMale"))
+```
+
+
+
+
+
+
+
+
+
+
+## Questions 1-4
+
+1. There appears to be a strong positive linear relationship between body mass and body length. The greater the mass, the greater the length. 
+
+2. Solely looking at the histograms, the mass data appears to be normally distributed. However, the length data does not. The histogram for length is skewed right. The body mass data appears to take on a normal bell shaped curve, but the body length data does not.
+
+3. According to our shapiro tests, the body mass and body length data is not normally distributed. This is the opposite of what I would have expected after my visual assessment. We cannot only base our decision on visual assessments and we should trust the results of the shapiro test. Thus, I think that the data is not normally distributed. 
+
+4. It appears that D. dorsalis is slightly heavier than D. sublineatus. The box plot widths vary slightly and means are slightly greater on D. dorsalis. 
+
+
+
+
+## Model Building
+
+
+```{r}
+fit1 = lm(body_length ~ body_mass, data = del)
+fit2 = lm(body_mass ~ sex, del)
+fit3 = lm(body_mass ~ binomial, del)
+fit4 = lm(body_mass ~ sex + binomial, del)
+fit5 = lm(body_mass ~ sex * binomial, del)
+```
+
+
+```{r}
+hist(residuals(fit1), xlab = "Residuals", ylab = "frequency", main = "Histogram of 'fit_1' Residuals", col = "red")
+shapiro.test(fit1$residuals) #significant, not normally distributed
+
+
+hist(residuals(fit2), xlab = "Residuals", ylab = "frequency", main = "Histogram of 'fit_2' Residuals", col = "green")
+shapiro.test(fit2$residuals) #significant, not normally distributed
+
+
+hist(residuals(fit3), xlab = "Residuals", ylab = "frequency", main = "Histogram of 'fit_3' Residuals", col = "purple")
+shapiro.test(fit3$residuals) #significant, not normally distributed
+
+
+hist(residuals(fit4), xlab = "Residuals", ylab = "frequency", main = "Histogram of 'fit_4' Residuals", col = "orange")
+shapiro.test(fit4$residuals) #significant, not normally distributed
+
+
+hist(residuals(fit5), xlab = "Residuals", ylab = "frequency", main = "Histogram of 'fit_5' Residuals", col = "blue")
+shapiro.test(fit5$residuals) #significant, not normally distributed
+```
+
+
+
+
+
+
+
+### Questions 5-6
+
+5. I am able to conclude from the shapiro tests that the residuals of all of the models are not normally distributed. However, again the graphical diagnostics would lead us to think they are normally distributed with the exception of fit_1. 
+
+6. All violations of the normality assumption are relatively equally severe for all of the models. All of the p-values are very significant. However, fit_2 is slightly less significant compared to the others (but it is still very significant!).
+
+
+
+
+
+
+## Model Interpretation
+
+```{r}
+knitr::kable(coef(summary(fit1)), digits = 3)
+knitr::kable(coef(summary(fit2)), digits = 3)
+knitr::kable(coef(summary(fit3)), digits = 3)
+knitr::kable(coef(summary(fit4)), digits = 3)
+knitr::kable(coef(summary(fit5)), digits = 3)
+
+
+
+knitr::kable(anova(fit2), digits = 22)
+knitr::kable(anova(fit3), digits = 22)
+knitr::kable(anova(fit4), digits = 22)
+knitr::kable(anova(fit5), digits = 22)
+```
+
+
+
+
+
+
+### Questions 7-9
+
+
+```{r}
+summary(fit1)
+```
+
+7. The magnitude of the mass/length relationship is 0.875. 
+
+164
+
+8. 164.12 mm
+```{r}
+(0.88 * 100) + 76.12
+```
+
+9. 76.12 mm
+```{r}
+(0.88 * 0) + 76.12
+```
+
+
+
+
+
+### Questions 10-13
+
+10. Female is the base case sex.
+
+11. Delomys dorsalis is the base case binomial.
+
+12. Males are heavier.
+
+13. Delomys dorsalis is the heavier species.
+
+
+
+
+### Questions 14-16
+
+14. Yes, sex and species are significant predictors for body mass.
+
+15. No, the p-value for the interaction between sex and species is 0.95. Thus, the interaction is not significant.
+
+16. There are very slight differences in the significance of the main effect of sex between the different models. The significance of sex lowest in the single predictor model and highest in the additive model (meaning the p-value was lowest in the additive model). However, the overall difference between all of the models was <0.0001.There was no difference in the significance of species between the models from what I could tell. I increased the number of significant digits and was unable to find a difference. The p-value was always 0. Overall, between all of the models sex and species remain highly significant predictors for body mass.
+
+
+## Model Comparison: Body Mass
+
+```{r}
+AIC(fit2, fit3, fit4, fit5)
+```
+
+
+### Questions 17-18
+
+17. 'fit5' and 'fit4' have the lowest AIC's. These are the additive and factorial models.
+
+18. I would select model 'fit 4'. Not only does this model have the lowest AIC score and df, but I think that it is also easiest to understand. This model is essentially stating that the species and the sex both have an impact on the mass of the rat. Thus, fit4 is much easier to explain than the complex interaction model (fit5).
+
